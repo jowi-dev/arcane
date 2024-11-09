@@ -14,7 +14,6 @@ defmodule SExpr do
     expr
     |> SExpr.Parser.parse()
     |> SExpr.Compiler.compile()
-    |> append_return()
   end
 
   def compile_and_build(expr, output_name \\ "program") do
@@ -32,12 +31,5 @@ defmodule SExpr do
       {:error, reason} ->
         {:error, reason}
     end
-  end
-
-  defp append_return(code) do
-    code <> """
-      ret i32 %1
-    }
-    """
   end
 end
