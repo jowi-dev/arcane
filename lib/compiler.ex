@@ -1,6 +1,8 @@
 defmodule SExpr.Compiler do
   use GenServer
 
+  @outdir "./target/"
+
   def start_link(_opts) do
     GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
   end
@@ -23,7 +25,7 @@ defmodule SExpr.Compiler do
   end
 
   def save_ir(ir_code, output_name) do 
-    File.write!("#{output_name}.ll", ir_code)
+    File.write!("#{@outdir}#{output_name}.ll", ir_code)
   end
 
   def compile_to_executable(output_name) do
@@ -64,7 +66,7 @@ defmodule SExpr.Compiler do
   
   defp get_cached_linker_args(output_name) do
     base_args = GenServer.call(__MODULE__, :get_linker_args)
-    {:ok, base_args ++ ["#{output_name}.o", "-o", output_name]}
+    {:ok, base_args ++ ["#{output_name}.o", "-o", @outdir <> output_name]}
   end
 
   defp detect_target_triple do
@@ -81,7 +83,7 @@ defmodule SExpr.Compiler do
 
   defp llvm_compile_to_object(ir_file) do
     basename = Path.basename(ir_file, ".ll")
-    case System.cmd("llc", ["-filetype=obj", ir_file, "-o", "#{basename}.o"]) do
+    case System.cmd("llc", ["-filetype=obj", ir_file, "-o", "#{@outdir}#{basename}.o"]) do
       {_, 0} -> {:ok, "#{basename}.o"}
       {error, _} -> {:error, "LLC compilation failed: #{error}"}
     end
