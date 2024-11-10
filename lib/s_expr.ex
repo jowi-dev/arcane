@@ -13,7 +13,7 @@ defmodule SExpr do
   def compile_expression(expr) do
     expr
     |> SExpr.Parser.parse()
-    |> SExpr.Compiler.compile()
+    |> SExpr.Compiler.compile_llvm(:stdout)
   end
 
   def compile_and_build(expr, output_name \\ "program") do
@@ -22,14 +22,6 @@ defmodule SExpr do
     
     expr
     |> SExpr.Parser.parse()
-    |> SExpr.Compiler.compile()
-    |> SExpr.Compiler.save_ir(output_name)
-    
-    case SExpr.Compiler.compile_to_executable(output_name) do
-      {:ok, executable} ->
-        {:ok, executable}
-      {:error, reason} ->
-        {:error, reason}
-    end
+    |> SExpr.Compiler.compile_llvm(output_name)
   end
 end

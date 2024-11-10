@@ -1,5 +1,6 @@
 defmodule SExpr.Parser do
   # Parser for S-expressions
+  @spec parse(String.t()) :: [String.t()]
   def parse(str) when is_binary(str) do
     str
     |> String.trim()
