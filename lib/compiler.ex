@@ -21,12 +21,12 @@ defmodule SExpr.Compiler do
 
   @outdir "./target/"
 
-  @doc """
+  @doc ~S"""
   Parser for S-Expressions
 
   ## Examples
-    iex> SExpr.Compiler.compile_s_expression("{+, 1, 2}")
-    [:+, 1, 2]
+      iex> SExpr.Compiler.compile_s_expression("{+, 1, 2}")
+      [:+, 1, 2]
   """
   @spec compile_s_expression(String.t()) :: [String.t()]
   defdelegate compile_s_expression(str), to: CompilerFrontend, as: :parse

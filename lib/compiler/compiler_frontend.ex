@@ -14,12 +14,12 @@ defmodule SExpr.Compiler.CompilerFrontend do
   The objective is to maximize ease of parsing
   """
 
-  @doc """
+  @doc ~S"""
   Parser for S-Expressions
 
   ## Examples
-    iex> SExpr.Compiler.CompilerFrontend.parse("{+, 1, 2}")
-    [:+, 1, 2]
+      iex> SExpr.Compiler.compile_s_expression("{+, 1, 2}")
+      [:+, 1, 2]
   """
   @spec parse(String.t()) :: [String.t()]
   def parse(str) when is_binary(str) do
