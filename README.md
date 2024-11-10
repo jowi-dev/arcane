@@ -22,7 +22,7 @@ flowchart TD
     H --> J[Native Binary]
     I --> K[Nix Store Path]
 
-    note1[High-level functional representation]
+    note1[Other Backends]
     note2[System configuration]
     note3[Runtime execution]
     
