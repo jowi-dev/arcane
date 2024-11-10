@@ -4,6 +4,7 @@ Based on my infatuation with Elixir and Odin, along with practicalities of JS
 
 TLDR - A hammer so I can see the world as a nail
 
+### Syntax Pending
 ```elixir
 UserStore.Users :: module => 
 
