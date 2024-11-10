@@ -6,6 +6,29 @@ Seriously though I dislike that elixir is bad for systems applications, and I do
 the available system language options much more. JoeLang is an attempt to create a language 
 that gets out of your way and lets you get stuff done.. without creating a mess.
 
+flowchart TD
+    A[Source Code] --> B[Lexer]
+    B --> C[Parser]
+    C --> D[AST]
+    D --> E[S-expressions]
+    
+    E --> F[LLVM IR Generator]
+    E --> G[Nix Expression Generator]
+    
+    F --> H[LLVM Backend]
+    G --> I[Nix Evaluator]
+    
+    H --> J[Native Binary]
+    I --> K[Nix Store Path]
+
+    note1[High-level functional representation]
+    note2[System configuration]
+    note3[Runtime execution]
+    
+    E -.- note1
+    I -.- note2
+    J -.- note3
+
 ## Installation
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed
