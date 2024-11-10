@@ -5,7 +5,7 @@ defmodule SExpr do
   This module serves as an entry point for interacting with all points of the compiler
   """
   alias SExpr.Compiler
-  
+
   @doc "Compile the expression and dump LLVM IR to stdout"
   def compile_expression(expr) do
     expr
@@ -17,7 +17,7 @@ defmodule SExpr do
   def compile_and_build(expr, output_name \\ "program") do
     # Ensure application is started
     Application.ensure_all_started(:s_expr)
-    
+
     expr
     |> Compiler.compile_s_expression()
     |> Compiler.compile_llvm(output_name)

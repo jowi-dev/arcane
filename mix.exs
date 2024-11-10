@@ -17,7 +17,8 @@ defmodule SExpr.MixProject do
       mod: {SExpr.Application, []},
       extra_applications: [:logger]
     ]
-  end  
+  end
+
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [

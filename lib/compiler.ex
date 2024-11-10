@@ -39,9 +39,10 @@ defmodule SExpr.Compiler do
 
   Option to push compilation output to stdout via output_name = :stdout
   """
-  @spec compile_llvm([String.t()], String.t() | :stdout) :: 
-    {:ok, String.t()} | :ok | {:error, String.t()}
+  @spec compile_llvm([String.t()], String.t() | :stdout) ::
+          {:ok, String.t()} | :ok | {:error, String.t()}
   def compile_llvm(ast, :stdout), do: LLVMBackend.compile(ast)
+
   def compile_llvm(ast, output_name) do
     ir_code = LLVMBackend.compile(ast)
 
