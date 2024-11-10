@@ -6,6 +6,7 @@ Seriously though I dislike that elixir is bad for systems applications, and I do
 the available system language options much more. JoeLang is an attempt to create a language 
 that gets out of your way and lets you get stuff done.. without creating a mess.
 
+```mermaid
 flowchart TD
     A[Source Code] --> B[Lexer]
     B --> C[Parser]
@@ -28,6 +29,7 @@ flowchart TD
     E -.- note1
     I -.- note2
     J -.- note3
+```
 
 ## Installation
 
