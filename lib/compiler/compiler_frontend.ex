@@ -23,11 +23,13 @@ defmodule SExpr.Compiler.CompilerFrontend do
   """
   @spec parse(String.t()) :: [String.t()]
   def parse(str) when is_binary(str) do
+    # Bracket replacing w/ {, and ,} is a hack for easier string splitting
     str
     |> String.trim()
     |> String.replace(" ", "")
-    |> String.split("")
-    |> Enum.reject(&(&1 == "" or &1 == ","))
+    |> String.replace("{", "{,")
+    |> String.replace("}", ",}")
+    |> String.split(",")
     |> parse_tokens([])
   end
 
