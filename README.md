@@ -1,10 +1,6 @@
 # JoeLang
 
-Yeah I am vain enough to name a language after myself. 
-
-Seriously though I dislike that elixir is bad for systems applications, and I don't like 
-the available system language options much more. JoeLang is an attempt to create a language 
-that gets out of your way and lets you get stuff done.. without creating a mess.
+A hammer so I can see the world as a nail
 
 ```mermaid
 flowchart TD
