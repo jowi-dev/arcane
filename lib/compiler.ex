@@ -16,9 +16,20 @@ defmodule SExpr.Compiler do
   I write Elixir for all my server side needs, and JS would be the first out 
   as I likely have that use case covered by existing knowledge.
   """
+  alias SExpr.Compiler.CompilerFrontend
   alias SExpr.Compiler.LLVMBackend
 
   @outdir "./target/"
+
+  @doc """
+  Parser for S-Expressions
+
+  ## Examples
+    iex> SExpr.Compiler.compile_s_expression("{+, 1, 2}")
+    [:+, 1, 2]
+  """
+  @spec compile_s_expression(String.t()) :: [String.t()]
+  defdelegate compile_s_expression(str), to: CompilerFrontend, as: :parse
 
   @doc """
   Function call for the LLVM Backend
