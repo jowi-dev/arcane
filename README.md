@@ -1,6 +1,43 @@
-# JoeLang
+# JoeLang Compiler (Name Pending)
 
-A hammer so I can see the world as a nail
+Based on my infatuation with Elixir and Odin, along with practicalities of JS
+
+TLDR - A hammer so I can see the world as a nail
+
+```elixir
+UserStore.Users :: module => 
+
+  createUser :: () : () -> {:ok, User.t()} => 
+   user = Repo.create(User) ~t(User.t())
+   #equivalent
+   user ~= Repo.create(User)
+   #equivalent
+   %User{} = user := Repo.create(User)
+
+   {:ok, user}
+  end
+
+  updateUser :: (ref user, values) : (^User.t(), map()) -> {:ok, user} | {:error, String.t()} =>
+    #Pass by reference
+    checkForUpdates(user)
+
+    user
+    |> deref
+    |> User.changes(values)
+    |> Repo.update()
+    =|> 
+      {:ok, user} -> {:ok, user}
+      {:error, reason} -> {:error, reason}
+  end
+ 
+  checkIfBob :: ~p(user) : (User.t()) -> {:ok, true} | {:ok, false} => 
+   case user =>
+     %User{name: "Bob"} -> {:ok, true}
+     _user -> {:ok, false}
+   end
+  end 
+end
+```
 
 ```mermaid
 flowchart TD
@@ -25,19 +62,6 @@ flowchart TD
     E -.- note1
     I -.- note2
     J -.- note3
-```
-
-## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `s_expr` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:s_expr, "~> 0.1.0"}
-  ]
-end
 ```
 
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
