@@ -19,4 +19,8 @@ defmodule SExpr.Compiler.CompilerFrontendTest do
   test "nested calls" do
     assert [:yeet, [:+, 1, 2], 69] = CompilerFrontend.parse("{yeet {+ 1 2} 69}")
   end
+
+  test "double nested calls" do 
+    assert [:yeet, [:+, 1, 2], [:-, 22, 20]] = CompilerFrontend.parse("{yeet {+ 1 2} {- 22 20}}")
+  end
 end
