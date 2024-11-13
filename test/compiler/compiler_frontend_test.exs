@@ -1,22 +1,22 @@
-defmodule SExpr.Compiler.CompilerFrontendTest do 
+defmodule SExpr.Compiler.CompilerFrontendTest do
   use ExUnit.Case
   doctest SExpr.Compiler.CompilerFrontend
 
   alias SExpr.Compiler.CompilerFrontend
 
-  test "simple add example" do 
+  test "simple add example" do
     assert [:+, 1, 2] = CompilerFrontend.parse("{+ 1 2}")
   end
 
-  test "addition - bigger numbers" do 
+  test "addition - bigger numbers" do
     assert [:+, 100, 2543] = CompilerFrontend.parse("{+ 100 2543}")
   end
 
-  test "three param function" do 
+  test "three param function" do
     assert [:yeet, 13, 37, 69] = CompilerFrontend.parse("{yeet 13 37 69}")
   end
 
-  test "nested calls" do 
+  test "nested calls" do
     assert [:yeet, [:+, 1, 2], 69] = CompilerFrontend.parse("{yeet {+ 1 2} 69}")
   end
 end
