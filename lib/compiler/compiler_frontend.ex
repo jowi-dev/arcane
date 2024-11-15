@@ -63,6 +63,7 @@ defmodule SExpr.Compiler.CompilerFrontend do
 
     nested_hold = "hold"
     current = <<current::binary, nested_hold::binary>>
+    |> IO.inspect(limit: :infinity, pretty: true, label: "")
 
     out = Map.put(out, idx, current)
 
@@ -71,23 +72,34 @@ defmodule SExpr.Compiler.CompilerFrontend do
 
   # 125 = "}"
   defp parse_expression(<<c, rest::binary>>, current, out, idx, max_idx) when c == 125 do
-    curr_expr = Map.get(out, idx, "")
-
-    expr = <<curr_expr::binary, current::binary>>
-
-    out = Map.put(out, idx, expr)
-
-    prev = Map.get(out, idx - 1, "")
 
     if byte_size(rest) == 0 do
-      out
+      IO.inspect(current, limit: :infinity, pretty: true, label: "final")
+      Map.put(out, idx, current)
     else
+
+    curr_expr = Map.get(out, idx, "")
+
+    # TODO - this is due to a deeper bug; fix it
+    out = 
+      if curr_expr == current do 
+        out 
+      else 
+        expr = <<curr_expr::binary, current::binary>>
+        |> IO.inspect(limit: :infinity, pretty: true, label: "")
+
+        Map.put(out, idx, expr)
+      end
+
+
+    prev = Map.get(out, idx - 1, "")
       parse_expression(rest, prev, out, idx - 1, max_idx)
     end
   end
 
   defp parse_expression(<<c, rest::binary>>, current, out, idx, max_idx) do
     current = <<current::binary, (<<c>>)>>
+    |> IO.inspect(limit: :infinity, pretty: true, label: "")
     parse_expression(rest, current, out, idx, max_idx)
   end
 
