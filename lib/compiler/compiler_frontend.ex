@@ -65,7 +65,6 @@ defmodule SExpr.Compiler.CompilerFrontend do
 
     current =
       <<current::binary, nested_hold::binary>>
-      |> IO.inspect(limit: :infinity, pretty: true, label: "")
 
     out = Map.put(out, idx, current)
 
@@ -76,7 +75,6 @@ defmodule SExpr.Compiler.CompilerFrontend do
   defp parse_expression(<<c, rest::binary>>, current, out, idx, max_idx) when c == 125 do
     # If we are at the end of the entire expression
     if byte_size(rest) == 0 do
-      IO.inspect(current, limit: :infinity, pretty: true, label: "final")
       Map.put(out, idx, current)
     else
       curr_expr = Map.get(out, idx, "")
@@ -91,7 +89,6 @@ defmodule SExpr.Compiler.CompilerFrontend do
   defp parse_expression(<<c, rest::binary>>, current, out, idx, max_idx) do
     current =
       <<current::binary, (<<c>>)>>
-      |> IO.inspect(limit: :infinity, pretty: true, label: "")
 
     parse_expression(rest, current, out, idx, max_idx)
   end
@@ -127,7 +124,6 @@ defmodule SExpr.Compiler.CompilerFrontend do
   defp concat_map(map, idx) do
     values =
       map
-      |> IO.inspect(limit: :infinity, pretty: true, label: "")
       |> Map.get(idx)
       |> Enum.map(fn
         {:hold, num} ->
