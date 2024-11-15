@@ -23,7 +23,6 @@ defmodule SExpr.Compiler.CompilerFrontend do
   """
   @spec parse(String.t()) :: [String.t()]
   def parse(str) when is_binary(str) do
-    # Bracket replacing w/ {, and ,} is a hack for easier string splitting
     str
     |> parse_expression("", %{}, 0, 0)
     |> compile_expression()
