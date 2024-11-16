@@ -28,4 +28,9 @@ defmodule SExpr.Compiler.CompilerFrontendTest do
     assert [:yeet, [:+, [:*, 3, 5], 2], [:-, 22, 20]] =
              CompilerFrontend.parse("{yeet {+ {* 3 5} 2} {- 22 20}}")
   end
+
+  test "three layer nesting - B" do
+    assert [:yeet, [:+, [:*, 3, 5], 2], [:-, 22, [:/, 20, 4]]] =
+             CompilerFrontend.parse("{yeet {+ {* 3 5} 2} {- 22 {/ 20 4}}}")
+  end
 end

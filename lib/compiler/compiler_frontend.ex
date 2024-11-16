@@ -29,7 +29,13 @@ defmodule SExpr.Compiler.CompilerFrontend do
     |> List.first()
   end
 
-  defp parse_expression("", "", out), do: {"", Enum.reverse(out)}
+  # Parse the hot path first
+  defp parse_expression(<<c, rest::binary>>, current, out) when c not in [123, 32, 125] do
+    current = <<current::binary, (<<c>>)>>
+
+    parse_expression(rest, current, out)
+  end
+
   # 123 == "{"
   defp parse_expression(<<c, rest::binary>>, "", out) when c == 123 do
     {rest, nested_func} = parse_expression(rest, "", [])
@@ -38,10 +44,9 @@ defmodule SExpr.Compiler.CompilerFrontend do
   end
 
   # 32 == " " | 125 == "}"
-  defp parse_expression(<<c, rest::binary>>, current, out)
-       when c == 32 or (c == 125 and byte_size(current) > 0) do
+  defp parse_expression(<<c, rest::binary>>, current, out) when c == 32 or c == 125 do
     current = parse_value(current)
-    out = [current | out]
+    out = if is_nil(current), do: out, else: [current | out]
 
     cond do
       rest == "" ->
@@ -56,16 +61,12 @@ defmodule SExpr.Compiler.CompilerFrontend do
     end
   end
 
-  defp parse_expression(<<c, rest::binary>>, current, out) do
-    current = <<current::binary, (<<c>>)>>
-
-    parse_expression(rest, current, out)
-  end
+  defp parse_expression("", "", out), do: {"", Enum.reverse(out)}
 
   def parse_value(val) do
     cond do
+      val == "" -> nil
       numeric?(val) -> String.to_integer(val)
-      "hold" == val -> :hold
       true -> String.to_atom(val)
     end
   end
