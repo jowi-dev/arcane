@@ -29,7 +29,10 @@ defmodule SExpr.Compiler.CompilerFrontend do
     |> List.first()
   end
 
+  @type s_expr_types :: atom() | integer() | String.t()
   # Parse the hot path first
+  @spec parse_expression(String.t(), String.t(), [s_expr_types()]) ::
+          {String.t(), [s_expr_types()]}
   defp parse_expression(<<c, rest::binary>>, current, out) when c not in [123, 32, 125] do
     current = <<current::binary, (<<c>>)>>
 
@@ -63,6 +66,7 @@ defmodule SExpr.Compiler.CompilerFrontend do
 
   defp parse_expression("", "", out), do: {"", Enum.reverse(out)}
 
+  @spec parse_value(String.t()) :: s_expr_types() | nil
   defp parse_value(val) do
     cond do
       val == "" -> nil
@@ -72,6 +76,9 @@ defmodule SExpr.Compiler.CompilerFrontend do
     end
   end
 
+  @spec numeric?(String.t()) :: boolean()
   defp numeric?(val), do: val =~ ~r/^\d+$/
+
+  @spec string?(String.t()) :: boolean()
   defp string?(val), do: val =~ ~r/^".*"$/
 end
