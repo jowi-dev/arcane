@@ -33,4 +33,9 @@ defmodule SExpr.Compiler.CompilerFrontendTest do
     assert [:yeet, [:+, [:*, 3, 5], 2], [:-, 22, [:/, 20, 4]]] =
              CompilerFrontend.parse("{yeet {+ {* 3 5} 2} {- 22 {/ 20 4}}}")
   end
+
+  test "three layer nesting - C - Module call nested" do
+    assert [[:hello, :world], [:+, [:*, 3, 5], 2], [:-, 22, [:/, 20, 4]]] =
+             CompilerFrontend.parse("{{hello world} {+ {* 3 5} 2} {- 22 {/ 20 4}}}")
+  end
 end
