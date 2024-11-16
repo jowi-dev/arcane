@@ -24,117 +24,42 @@ defmodule SExpr.Compiler.CompilerFrontend do
   @spec parse(String.t()) :: [String.t()]
   def parse(str) when is_binary(str) do
     str
-    |> parse_expression("", %{}, 0, 0)
-    |> compile_expression()
+    |> parse_expression("", [])
+    |> elem(1)
+    |> List.first()
   end
 
-  # -----------------------------------------------------------------------------
-  # { +
-  #   100
-  #   { - 
-  #     200
-  #     { *
-  #       { / 
-  #         100
-  #         2 }, 
-  #       15 } } }
-  #
-  # Becomes ..
-  #
-  # %{
-  # 1 => [:+, 100, :hold0]
-  # 2 => [:-, 200, :hold1]
-  # 3 => [:*, :hold2, 15]
-  # 4 => [:/, 100, 2]
-  # }
-  # 
-  # Compilation Stage would go...
-  # idx => 4 -> done, full expression
-  # idx => 3 -> append 4 -> 3, 
-  # idx => 2 -> append 3 -> 2
-  # idx => 1 -> append 2 -> 1
-  # idx => 0 -> Complete expression
-  # -----------------------------------------------------------------------------
+  defp parse_expression("", "", out), do: {"", Enum.reverse(out)}
+  # 123 == "{"
+  defp parse_expression(<<c, rest::binary>>, "", out) when c == 123 do
+    {rest, nested_func} = parse_expression(rest, "", [])
 
-  # 123 = "{"
-  defp parse_expression(<<c, rest::binary>>, current, out, idx, max_idx) when c == 123 do
-    new_idx = max_idx + 1
-
-    nested_hold = "hold"
-
-    current =
-      <<current::binary, nested_hold::binary>>
-
-    out = Map.put(out, idx, current)
-
-    parse_expression(rest, "", out, new_idx, new_idx)
+    parse_expression(rest, "", [nested_func | out])
   end
 
-  # 125 = "}"
-  defp parse_expression(<<c, rest::binary>>, current, out, idx, max_idx) when c == 125 do
-    # If we are at the end of the entire expression
-    if byte_size(rest) == 0 do
-      Map.put(out, idx, current)
-    else
-      curr_expr = Map.get(out, idx, "")
-      expr = <<curr_expr::binary, current::binary>>
-      out = Map.put(out, idx, expr)
+  # 32 == " " | 125 == "}"
+  defp parse_expression(<<c, rest::binary>>, current, out)
+       when c == 32 or (c == 125 and byte_size(current) > 0) do
+    current = parse_value(current)
+    out = [current | out]
 
-      prev = Map.get(out, idx - 1, "")
-      parse_expression(rest, prev, out, idx - 1, max_idx)
+    cond do
+      rest == "" ->
+        {"", Enum.reverse(out)}
+
+      c == 125 ->
+        <<_space, new_rest::binary>> = rest
+        {new_rest, Enum.reverse(out)}
+
+      true ->
+        parse_expression(rest, "", out)
     end
   end
 
-  defp parse_expression(<<c, rest::binary>>, current, out, idx, max_idx) do
-    current =
-      <<current::binary, (<<c>>)>>
+  defp parse_expression(<<c, rest::binary>>, current, out) do
+    current = <<current::binary, (<<c>>)>>
 
-    parse_expression(rest, current, out, idx, max_idx)
-  end
-
-  defp compile_expression(expr_map) do
-    expr_map
-    |> Map.to_list()
-    |> split_and_parse(1, [])
-    |> concat_map()
-  end
-
-  defp split_and_parse([], idx, out), do: {Enum.into(out, %{}), idx}
-
-  defp split_and_parse([{k, v} | rest], idx, out) do
-    {idx, v} =
-      v
-      |> String.split()
-      |> Enum.reduce({idx, []}, fn value, {idx, acc} ->
-        case parse_value(value) do
-          :hold -> {idx + 1, [{:hold, idx} | acc]}
-          val -> {idx, [val | acc]}
-        end
-      end)
-
-    new_kv = {k, Enum.reverse(v)}
-    split_and_parse(rest, idx, [new_kv | out])
-  end
-
-  defp concat_map({map, max_idx}), do: concat_map(map, max_idx - 1)
-
-  defp concat_map(map, 0), do: Map.get(map, 1)
-
-  defp concat_map(map, idx) do
-    values =
-      map
-      |> Map.get(idx)
-      |> Enum.map(fn
-        {:hold, num} ->
-          Map.get(map, num)
-
-        val ->
-          val
-      end)
-
-    map
-    |> Map.put(idx, values)
-    |> concat_map(idx - 1)
+    parse_expression(rest, current, out)
   end
 
   def parse_value(val) do
