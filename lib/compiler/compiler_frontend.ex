@@ -72,6 +72,7 @@ defmodule SExpr.Compiler.CompilerFrontend do
       val == "" -> nil
       string?(val) -> String.replace(val, "\"", "")
       numeric?(val) -> String.to_integer(val)
+      float?(val) -> String.to_float(val)
       true -> String.to_atom(val)
     end
   end
@@ -79,6 +80,10 @@ defmodule SExpr.Compiler.CompilerFrontend do
   @spec numeric?(String.t()) :: boolean()
   defp numeric?(val), do: val =~ ~r/^\d+$/
 
+  @spec float?(String.t()) :: boolean()
+  defp float?(val), do: val =~ ~r/^-?\d+\.\d+$/
+
   @spec string?(String.t()) :: boolean()
   defp string?(val), do: val =~ ~r/^".*"$/
+
 end
