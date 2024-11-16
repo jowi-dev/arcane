@@ -38,4 +38,21 @@ defmodule SExpr.Compiler.CompilerFrontendTest do
     assert [[:hello, :world], [:+, [:*, 3, 5], 2], [:-, 22, [:/, 20, 4]]] =
              CompilerFrontend.parse("{{hello world} {+ {* 3 5} 2} {- 22 {/ 20 4}}}")
   end
+
+  describe "types" do
+    test "parses a number" do
+      assert [42] = CompilerFrontend.parse("{42}")
+    end
+
+    test "parses keywords as atoms" do
+      assert [:hello] = CompilerFrontend.parse("{hello}")
+    end
+
+    test "parses strings" do
+      assert ["world"] =
+               CompilerFrontend.parse("""
+               {"world"}
+               """)
+    end
+  end
 end

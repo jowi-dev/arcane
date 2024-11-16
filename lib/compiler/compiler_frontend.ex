@@ -63,13 +63,15 @@ defmodule SExpr.Compiler.CompilerFrontend do
 
   defp parse_expression("", "", out), do: {"", Enum.reverse(out)}
 
-  def parse_value(val) do
+  defp parse_value(val) do
     cond do
       val == "" -> nil
+      string?(val) -> String.replace(val, "\"", "")
       numeric?(val) -> String.to_integer(val)
       true -> String.to_atom(val)
     end
   end
 
-  def numeric?(val), do: val =~ ~r/^\d+$/
+  defp numeric?(val), do: val =~ ~r/^\d+$/
+  defp string?(val), do: val =~ ~r/^".*"$/
 end
