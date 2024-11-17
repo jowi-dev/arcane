@@ -4,7 +4,7 @@ defmodule Arcane.Parser do
   an AST for the compiler frontend to consume
   """
 
-  def generate_ast(tokens) do 
+  def generate_ast(tokens) do
     tokens
   end
 end

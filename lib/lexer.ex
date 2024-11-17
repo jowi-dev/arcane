@@ -4,7 +4,7 @@ defmodule Arcane.Lexer do
   tokens for the parser to ingest.
   """
 
-  def tokenize(expr) do 
+  def tokenize(expr) do
     expr
   end
 end
