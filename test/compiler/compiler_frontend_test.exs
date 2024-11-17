@@ -55,7 +55,7 @@ defmodule Arcane.Compiler.CompilerFrontendTest do
                """)
     end
 
-    test "parses floats" do 
+    test "parses floats" do
       assert [32.2] = CompilerFrontend.parse("{32.2}")
     end
   end

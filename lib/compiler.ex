@@ -25,11 +25,11 @@ defmodule Arcane.Compiler do
   Parser for S-Expressions
 
   ## Examples
-      iex> Arcane.Compiler.compile_arcaneession("{+, 1, 2}")
+      iex> Arcane.Compiler.compile_s_expression("{+ 1 2}")
       [:+, 1, 2]
   """
-  @spec compile_arcaneession(String.t()) :: [String.t()]
-  defdelegate compile_arcaneession(str), to: CompilerFrontend, as: :parse
+  @spec compile_s_expression(String.t()) :: [String.t()]
+  defdelegate compile_s_expression(str), to: CompilerFrontend, as: :parse
 
   @doc """
   Function call for the LLVM Backend

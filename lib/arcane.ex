@@ -9,7 +9,7 @@ defmodule Arcane do
   @doc "Compile the expression and dump LLVM IR to stdout"
   def compile_expression(expr) do
     expr
-    |> Compiler.compile_arcaneession()
+    |> Compiler.compile_s_expression()
     |> Compiler.compile_llvm(:stdout)
   end
 
@@ -19,7 +19,7 @@ defmodule Arcane do
     Application.ensure_all_started(:arcane)
 
     expr
-    |> Compiler.compile_arcaneession()
+    |> Compiler.compile_s_expression()
     |> Compiler.compile_llvm(output_name)
   end
 end

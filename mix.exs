@@ -14,7 +14,7 @@ defmodule Arcane.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      mod: {SExpr.Application, []},
+      mod: {Arcane.Application, []},
       extra_applications: [:logger]
     ]
   end

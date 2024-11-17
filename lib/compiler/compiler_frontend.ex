@@ -70,9 +70,9 @@ defmodule Arcane.Compiler.CompilerFrontend do
   defp parse_value(val) do
     cond do
       val == "" -> nil
-      string?(val) -> String.replace(val, "\"", "")
       numeric?(val) -> String.to_integer(val)
       float?(val) -> String.to_float(val)
+      string?(val) -> String.replace(val, "\"", "")
       true -> String.to_atom(val)
     end
   end
@@ -85,5 +85,4 @@ defmodule Arcane.Compiler.CompilerFrontend do
 
   @spec string?(String.t()) :: boolean()
   defp string?(val), do: val =~ ~r/^".*"$/
-
 end
