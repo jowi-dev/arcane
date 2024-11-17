@@ -1,4 +1,4 @@
-defmodule SExprTest do
+defmodule ArcaneTest do
   use ExUnit.Case
-  doctest SExpr
+  doctest Arcane
 end

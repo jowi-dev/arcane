@@ -1,4 +1,4 @@
-defmodule SExpr.Compiler.CompilerFrontend do
+defmodule Arcane.Compiler.CompilerFrontend do
   @moduledoc """
   Compiler Frontend
 
@@ -18,7 +18,7 @@ defmodule SExpr.Compiler.CompilerFrontend do
   Parser for S-Expressions
 
   ## Examples
-      iex> SExpr.Compiler.compile_s_expression("{+ 1 2}")
+      iex> Arcane.Compiler.compile_s_expression("{+ 1 2}")
       [:+, 1, 2]
   """
   @spec parse(String.t()) :: [String.t()]

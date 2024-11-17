@@ -1,12 +1,12 @@
-defmodule SExpr.Application do
+defmodule Arcane.Application do
   use Application
 
   def start(_type, _args) do
     children = [
-      SExpr.Compiler.LLVMBackend
+      Arcane.Compiler.LLVMBackend
     ]
 
-    opts = [strategy: :one_for_one, name: SExpr.Supervisor]
+    opts = [strategy: :one_for_one, name: Arcane.Supervisor]
     Supervisor.start_link(children, opts)
   end
 end

@@ -1,4 +1,4 @@
-# JoeLang Compiler (Name Pending)
+# Arcane Compiler
 
 Based on my infatuation with Elixir and Odin, along with practicalities of JS
 
@@ -8,17 +8,19 @@ TLDR - A hammer so I can see the world as a nail
 ```elixir
 UserStore.Users :: module => 
 
-  createUser :: () : () -> {:ok, User.t()} => 
+  @spec createUser() -> {:ok, User.t()}
+  createUser :: () =>
    user = Repo.create(User) ~t(User.t())
    #equivalent
-   user ~= Repo.create(User)
+   user ~= Repo.create(User) 
    #equivalent
-   %User{} = user := Repo.create(User)
+   %User{} = user ~= Repo.create(User)
 
    {:ok, user}
   end
 
-  updateUser :: (ref user, values) : (^User.t(), map()) -> {:ok, user} | {:error, String.t()} =>
+  @spec updateUser(^User.t(), map()) -> {:ok, user} | {:error, String.t()} 
+  updateUser :: (ref user, values) =>
     #Pass by reference
     checkForUpdates(user)
 
@@ -30,8 +32,9 @@ UserStore.Users :: module =>
       {:ok, user} -> {:ok, user}
       {:error, reason} -> {:error, reason}
   end
- 
-  checkIfBob :: ~p(user) : (User.t()) -> {:ok, true} | {:ok, false} => 
+
+  @spec checkIfBob(User.t()) -> {:ok, true} | {:ok, false} 
+  checkIfBob :: ~p(user) => 
    case user =>
      %User{name: "Bob"} -> {:ok, true}
      _user -> {:ok, false}
@@ -67,5 +70,5 @@ flowchart TD
 
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/s_expr>.
+be found at <https://hexdocs.pm/arcane>.
 

@@ -1,4 +1,4 @@
-defmodule SExpr.Compiler.LLVMBackend do
+defmodule Arcane.Compiler.LLVMBackend do
   use GenServer
 
   def start_link(_opts) do

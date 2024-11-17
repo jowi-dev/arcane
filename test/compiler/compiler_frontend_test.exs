@@ -1,8 +1,8 @@
-defmodule SExpr.Compiler.CompilerFrontendTest do
+defmodule Arcane.Compiler.CompilerFrontendTest do
   use ExUnit.Case
-  doctest SExpr.Compiler.CompilerFrontend
+  doctest Arcane.Compiler.CompilerFrontend
 
-  alias SExpr.Compiler.CompilerFrontend
+  alias Arcane.Compiler.CompilerFrontend
 
   test "simple add example" do
     assert [:+, 1, 2] = CompilerFrontend.parse("{+ 1 2}")
