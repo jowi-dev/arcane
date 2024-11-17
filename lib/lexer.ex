@@ -9,13 +9,11 @@ defmodule Arcane.Lexer do
   def tokenize(expr) do
     expr
     |> parse_expression("", [])
-    |> Enum.reject(&(elem(&1, 0) == :error))
   end
 
-  @type s_expr_types :: atom() | integer() | String.t()
   # Parse the hot path first
   @spec parse_expression(String.t(), String.t(), [Token.t()]) ::
-          {String.t(), [s_expr_types()]}
+          [{atom(), Token.value_types()}]
   defp parse_expression("", current, out) do
     {type, current} = parse_value(current)
 
@@ -45,8 +43,7 @@ defmodule Arcane.Lexer do
 
       :operator ->
         # Current then operator
-        current = parse_value(current)
-        out = [{type, c} | [current | out]]
+        out = [{type, c} | out]
         parse_expression(rest, "", out)
 
       :eat when current != "" ->
@@ -65,7 +62,7 @@ defmodule Arcane.Lexer do
   defp parse_char(val) when val in [43], do: {:operator, String.to_atom(<<val>>)}
   defp parse_char(val), do: {:ident, val}
 
-  @spec parse_value(String.t()) :: {atom(), s_expr_types() | nil}
+  @spec parse_value(String.t()) :: {atom(), Token.value_types() | nil}
   defp parse_value(val) do
     cond do
       val == "" -> {:error, nil}
