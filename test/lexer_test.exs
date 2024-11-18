@@ -49,6 +49,51 @@ defmodule Arcane.LexerTest do
     assert Lexer.tokenize("thing,1") == Lexer.tokenize("thing,1")
   end
 
+  test "Tokenizes a float" do
+    tokens =
+      Lexer.tokenize("""
+      37.2
+      """)
+
+    assert tokens == [{:float, 37.2}]
+  end
+
+  test "Tokenizes an int" do
+    tokens =
+      Lexer.tokenize("""
+      37
+      """)
+
+    assert tokens == [{:int, 37}]
+  end
+
+  test "Tokenizes a string" do
+    tokens =
+      Lexer.tokenize("""
+      "hello world"
+      """)
+
+    assert tokens == [{:string, "hello world"}]
+  end
+
+  test "Tokenizes expression open" do
+    tokens =
+      Lexer.tokenize("""
+      =>
+      """)
+
+    assert tokens == [{:expr_open, "=>"}]
+  end
+
+  test "Tokenizes expression close" do
+    tokens =
+      Lexer.tokenize("""
+      end
+      """)
+
+    assert tokens == [{:expr_close, "end"}]
+  end
+
   # When it is time to parse more involved expressions - use this
   #  defp get_fixture(filename) do
   #    # Get absolute path to test fixture

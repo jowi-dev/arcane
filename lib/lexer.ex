@@ -32,7 +32,7 @@ defmodule Arcane.Lexer do
   end
 
   defp parse_expression(<<c, rest::binary>>, current, out) do
-    {type, c} = tuple = parse_char(c)
+    {{type, c} = tuple, rest} = parse_char(c, rest)
 
     case type do
       :ident ->
@@ -53,18 +53,34 @@ defmodule Arcane.Lexer do
     [tuple | [value | out]]
   end
 
-  defp parse_char(61), do: Token.assign()
+  @equal 61
+  @gt 62
+  @plus 43
+  @comma 44
+  @whitespace [10, 32]
 
-  # 10 = " " 32 = "\n"
-  defp parse_char(val) when val in [10, 32], do: {:eat, nil}
-  defp parse_char(43), do: Token.plus()
-  defp parse_char(44), do: Token.comma()
-  defp parse_char(val), do: Token.ident(val)
+  defp parse_char(binary_val, rest) do
+    {c, tl_rest} =
+      (fn
+         "" -> {nil, ""}
+         <<c, tl_rest::binary>> -> {c, tl_rest}
+       end).(rest)
+
+    case {binary_val, c} do
+      {@equal, @gt} -> {Token.expr_open(), tl_rest}
+      {@equal, _} -> {Token.assign(), rest}
+      {@plus, _} -> {Token.plus(), rest}
+      {@comma, _} -> {Token.comma(), rest}
+      {val, _} when val in @whitespace -> {{:eat, nil}, rest}
+      {val, _} -> {Token.ident(val), rest}
+    end
+  end
 
   @spec parse_value(String.t()) :: {atom(), Token.value_types() | nil}
   defp parse_value(val) do
     cond do
       val == "" -> Token.illegal(val)
+      val == "end" -> Token.expr_close()
       numeric?(val) -> Token.int(val)
       float?(val) -> Token.float(val)
       string?(val) -> Token.string(val)
