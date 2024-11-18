@@ -11,6 +11,9 @@ defmodule Arcane.Lexer do
   @comma 44
   @space 32
   @newline 10
+  @paren_l 40
+  @paren_r 41
+  @colon 58
 
   @doc "This is temporary until lexing and parsing is more feature complete"
   def pass_through(expr), do: expr
@@ -57,8 +60,6 @@ defmodule Arcane.Lexer do
     end
   end
 
-  #  defp merge_expression({:eat, _}, "", out), do: out
-  #  defp merge_expression({:eat, _}, current, out), do: [parse_value(current) | out]
   defp merge_expression(tuple, "", out), do: [tuple | out]
 
   defp merge_expression(tuple, current, out) do
@@ -82,6 +83,9 @@ defmodule Arcane.Lexer do
       {@equal, _} -> {Token.assign(), rest}
       {@plus, _} -> {Token.plus(), rest}
       {@comma, _} -> {Token.comma(), rest}
+      {@paren_l, _} -> {Token.paren_l(), rest}
+      {@paren_r, _} -> {Token.paren_r(), rest}
+      {@colon, @colon} -> {Token.declare(), tl_rest}
       {@space, _} -> {Token.ident(@space), rest}
       {@newline, _} -> {{:eat, nil}, rest}
       {val, _} -> {Token.ident(val), rest}

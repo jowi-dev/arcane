@@ -94,6 +94,33 @@ defmodule Arcane.LexerTest do
     assert tokens == [{:expr_close, "end"}]
   end
 
+  test "Tokenizes paren open" do
+    tokens =
+      Lexer.tokenize("""
+      (
+      """)
+
+    assert tokens == [{:paren_open, "("}]
+  end
+
+  test "Tokenizes paren close" do
+    tokens =
+      Lexer.tokenize("""
+      ) 
+      """)
+
+    assert tokens == [{:paren_close, ")"}]
+  end
+
+  test "Tokenizes declaration" do
+    tokens =
+      Lexer.tokenize("""
+      ::
+      """)
+
+    assert tokens == [{:declare, "::"}]
+  end
+
   # When it is time to parse more involved expressions - use this
   #  defp get_fixture(filename) do
   #    # Get absolute path to test fixture
