@@ -3,26 +3,44 @@ defmodule Arcane.LexerTest do
 
   alias Arcane.Lexer
 
-  #  test "if given a string, pass through" do
-  #    str = "hello world"
-  #
-  #    assert "hello world" = Lexer.tokenize(str)
-  #  end
-
   test "Tokenizes Adding" do
-    # Get absolute path to test fixture
-    filepath = Path.join([__DIR__, "fixtures", "add.arc"])
-
-    # Read the file content
-    {:ok, content} = File.read(filepath)
-
     # Test your parser/lexer
-    tokens = Lexer.tokenize(content)
+    tokens = Lexer.tokenize("""
+      1 + 2
+    """)
 
     assert tokens == [
-             {:number, 1},
-             {:operator, :+},
-             {:number, 2}
+             {:int, 1},
+             {:plus, "+"},
+             {:int, 2}
            ]
+
+    assert Lexer.tokenize("1 + 2") == Lexer.tokenize("1+2")
   end
+
+  test "Tokenizes assignments" do
+    tokens = Lexer.tokenize("""
+      thing = 1
+    """)
+
+    assert tokens == [
+             {:ident, "thing"},
+             {:assign, "="},
+             {:int, 1}
+           ]
+
+    assert Lexer.tokenize("thing = 1") == Lexer.tokenize("thing=1")
+  end
+
+  # When it is time to parse more involved expressions - use this
+  #  defp get_fixture(filename) do
+  #    # Get absolute path to test fixture
+  #    filepath = Path.join([__DIR__, "fixtures", "#{filename}.arc"])
+  #
+  #    # Read the file content
+  #    {:ok, content} = File.read(filepath)
+  #
+  #    content
+  #    |> IO.inspect(limit: :infinity, pretty: true, label: "content")
+  #  end
 end

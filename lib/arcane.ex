@@ -11,7 +11,7 @@ defmodule Arcane do
   @doc "Compile the expression and dump LLVM IR to stdout"
   def compile_expression(expr) do
     expr
-    |> Lexer.tokenize()
+    |> Lexer.pass_through()
     |> Parser.generate_ast()
     |> Compiler.compile_s_expression()
     |> Compiler.compile_llvm(:stdout)
@@ -23,7 +23,7 @@ defmodule Arcane do
     Application.ensure_all_started(:arcane)
 
     expr
-    |> Lexer.tokenize()
+    |> Lexer.pass_through()
     |> Parser.generate_ast()
     |> Compiler.compile_s_expression()
     |> Compiler.compile_llvm(output_name)

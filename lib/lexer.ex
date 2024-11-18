@@ -5,6 +5,12 @@ defmodule Arcane.Lexer do
   """
   alias Arcane.Token
 
+  @doc "This is temporary until lexing and parsing is more feature complete"
+  def pass_through(expr), do: expr
+
+  @doc """
+  Tokenize converts a string into a series of tokens
+  """
   @spec tokenize(String.t()) :: [Token.t()]
   def tokenize(expr) do
     expr
@@ -17,7 +23,7 @@ defmodule Arcane.Lexer do
   defp parse_expression("", current, out) do
     {type, current} = parse_value(current)
 
-    if type == :error do
+    if type == :illegal do
       out
     else
       [{type, current} | out]
@@ -26,50 +32,41 @@ defmodule Arcane.Lexer do
   end
 
   defp parse_expression(<<c, rest::binary>>, current, out) do
-    {type, c} = parse_char(c)
+    {type, c} = tuple = parse_char(c)
 
     case type do
-      :assign ->
-        parse_expression(rest, "", [:assign | out])
-
       :ident ->
         parse_expression(rest, <<current::binary, (<<c>>)>>, out)
 
-      :operator when current != "" ->
-        # Current then operator
-        current = parse_value(current)
-        out = [{type, c} | [current | out]]
+      _type ->
+        out = merge_expression(tuple, current, out)
         parse_expression(rest, "", out)
-
-      :operator ->
-        # Current then operator
-        out = [{type, c} | out]
-        parse_expression(rest, "", out)
-
-      :eat when current != "" ->
-        {type, current} = parse_value(current)
-        parse_expression(rest, "", [{type, current} | out])
-
-      :eat when current == "" ->
-        parse_expression(rest, current, out)
     end
   end
 
-  defp parse_char(61), do: {:assign, "="}
+  defp merge_expression({:eat, _}, "", out), do:  out
+  defp merge_expression({:eat, _}, current, out), do:  [parse_value(current) | out]
+  defp merge_expression(tuple, "", out), do: [tuple | out]
+  defp merge_expression(tuple, current, out) do 
+    value = parse_value(current)
+    [tuple | [value | out]]
+  end
+
+  defp parse_char(61), do: Token.assign()
 
   # 10 = " " 32 = "\n"
   defp parse_char(val) when val in [10, 32], do: {:eat, nil}
-  defp parse_char(val) when val in [43], do: {:operator, String.to_atom(<<val>>)}
-  defp parse_char(val), do: {:ident, val}
+  defp parse_char(43), do: Token.plus()
+  defp parse_char(val), do: Token.ident(val)
 
   @spec parse_value(String.t()) :: {atom(), Token.value_types() | nil}
   defp parse_value(val) do
     cond do
-      val == "" -> {:error, nil}
-      numeric?(val) -> {:number, String.to_integer(val)}
-      float?(val) -> {:float, String.to_float(val)}
-      string?(val) -> {:string, String.replace(val, "\"", "")}
-      true -> {:ident, String.to_atom(val)}
+      val == "" -> Token.illegal(val)
+      numeric?(val) -> Token.int(val)
+      float?(val) -> Token.float(val)
+      string?(val) -> Token.string(val)
+      true -> Token.ident(val)
     end
   end
 
