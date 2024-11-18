@@ -5,6 +5,13 @@ defmodule Arcane.Lexer do
   """
   alias Arcane.Token
 
+  @equal 61
+  @gt 62
+  @plus 43
+  @comma 44
+  @space 32
+  @newline 10
+
   @doc "This is temporary until lexing and parsing is more feature complete"
   def pass_through(expr), do: expr
 
@@ -31,12 +38,6 @@ defmodule Arcane.Lexer do
     |> Enum.reverse()
   end
 
-  @equal 61
-  @gt 62
-  @plus 43
-  @comma 44
-  @space 32
-  @newline 10
   defp parse_expression(<<c, rest::binary>>, current, out) do
     {{type, c} = tuple, rest} = parse_char(c, rest)
 
