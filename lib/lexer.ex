@@ -31,12 +31,24 @@ defmodule Arcane.Lexer do
     |> Enum.reverse()
   end
 
+  @equal 61
+  @gt 62
+  @plus 43
+  @comma 44
+  @space 32
+  @newline 10
   defp parse_expression(<<c, rest::binary>>, current, out) do
     {{type, c} = tuple, rest} = parse_char(c, rest)
 
     case type do
+      :ident when current == "" and c == @space ->
+        parse_expression(rest, "", out)
+
       :ident ->
         parse_expression(rest, <<current::binary, (<<c>>)>>, out)
+
+      :eat ->
+        parse_expression(rest, current, out)
 
       _type ->
         out = merge_expression(tuple, current, out)
@@ -44,20 +56,18 @@ defmodule Arcane.Lexer do
     end
   end
 
-  defp merge_expression({:eat, _}, "", out), do: out
-  defp merge_expression({:eat, _}, current, out), do: [parse_value(current) | out]
+  #  defp merge_expression({:eat, _}, "", out), do: out
+  #  defp merge_expression({:eat, _}, current, out), do: [parse_value(current) | out]
   defp merge_expression(tuple, "", out), do: [tuple | out]
 
   defp merge_expression(tuple, current, out) do
-    value = parse_value(current)
+    value =
+      current
+      |> String.trim()
+      |> parse_value()
+
     [tuple | [value | out]]
   end
-
-  @equal 61
-  @gt 62
-  @plus 43
-  @comma 44
-  @whitespace [10, 32]
 
   defp parse_char(binary_val, rest) do
     {c, tl_rest} =
@@ -71,7 +81,8 @@ defmodule Arcane.Lexer do
       {@equal, _} -> {Token.assign(), rest}
       {@plus, _} -> {Token.plus(), rest}
       {@comma, _} -> {Token.comma(), rest}
-      {val, _} when val in @whitespace -> {{:eat, nil}, rest}
+      {@space, _} -> {Token.ident(@space), rest}
+      {@newline, _} -> {{:eat, nil}, rest}
       {val, _} -> {Token.ident(val), rest}
     end
   end
