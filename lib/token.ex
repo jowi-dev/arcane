@@ -15,9 +15,11 @@ defmodule Arcane.Token do
   def int(val), do: {:int, String.to_integer(val)}
   def string(val), do: {:string, String.replace(val, "\"", "")}
   def float(val), do: {:float, String.to_float(val)}
-  def assign, do: {:assign, "="}
-  def plus, do: {:plus, "+"}
   def paren_l, do: {:paren_open, "("}
   def paren_r, do: {:paren_close, ")"}
+
+  # Lexer - Tested
   def comma, do: {:comma, ","}
+  def assign, do: {:assign, "="}
+  def plus, do: {:plus, "+"}
 end

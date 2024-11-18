@@ -5,9 +5,10 @@ defmodule Arcane.LexerTest do
 
   test "Tokenizes Adding" do
     # Test your parser/lexer
-    tokens = Lexer.tokenize("""
-      1 + 2
-    """)
+    tokens =
+      Lexer.tokenize("""
+        1 + 2
+      """)
 
     assert tokens == [
              {:int, 1},
@@ -19,9 +20,10 @@ defmodule Arcane.LexerTest do
   end
 
   test "Tokenizes assignments" do
-    tokens = Lexer.tokenize("""
-      thing = 1
-    """)
+    tokens =
+      Lexer.tokenize("""
+        thing = 1
+      """)
 
     assert tokens == [
              {:ident, "thing"},
@@ -30,6 +32,21 @@ defmodule Arcane.LexerTest do
            ]
 
     assert Lexer.tokenize("thing = 1") == Lexer.tokenize("thing=1")
+  end
+
+  test "Tokenizes comma" do
+    tokens =
+      Lexer.tokenize("""
+        thing,1
+      """)
+
+    assert tokens == [
+             {:ident, "thing"},
+             {:comma, ","},
+             {:int, 1}
+           ]
+
+    assert Lexer.tokenize("thing,1") == Lexer.tokenize("thing,1")
   end
 
   # When it is time to parse more involved expressions - use this

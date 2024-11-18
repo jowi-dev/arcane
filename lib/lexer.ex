@@ -44,10 +44,11 @@ defmodule Arcane.Lexer do
     end
   end
 
-  defp merge_expression({:eat, _}, "", out), do:  out
-  defp merge_expression({:eat, _}, current, out), do:  [parse_value(current) | out]
+  defp merge_expression({:eat, _}, "", out), do: out
+  defp merge_expression({:eat, _}, current, out), do: [parse_value(current) | out]
   defp merge_expression(tuple, "", out), do: [tuple | out]
-  defp merge_expression(tuple, current, out) do 
+
+  defp merge_expression(tuple, current, out) do
     value = parse_value(current)
     [tuple | [value | out]]
   end
@@ -57,6 +58,7 @@ defmodule Arcane.Lexer do
   # 10 = " " 32 = "\n"
   defp parse_char(val) when val in [10, 32], do: {:eat, nil}
   defp parse_char(43), do: Token.plus()
+  defp parse_char(44), do: Token.comma()
   defp parse_char(val), do: Token.ident(val)
 
   @spec parse_value(String.t()) :: {atom(), Token.value_types() | nil}
