@@ -17,7 +17,8 @@ defmodule Arcane.Token do
           | {:illegal, String.t()}
           | {:eat, nil}
 
-  @type value_types :: atom() | integer() | String.t() | float()
+  @type value_types ::
+          atom() | integer() | String.t() | float() | list(atom() | integer() | String.t())
 
   # Untested - unsure if I need these yet
   def illegal(val), do: {:illegal, val}

@@ -6,7 +6,8 @@ defmodule Arcane.Parser do
 
   alias Arcane.Token
 
-  @operators [:plus]
+  @operators [:plus, :assign]
+  @values [:ident, :float, :int, :string]
 
   @doc "delete this when parsing works"
   def pass_through(tokens), do: tokens
@@ -22,31 +23,77 @@ defmodule Arcane.Parser do
   @spec parse_expression([Token.t()]) :: [Token.value_types()]
   def parse_expression(tokens), do: generate_ast(tokens, [])
 
-  defp generate_ast(tokens, out) when length(tokens) > 2 do
+  defp generate_ast(tokens, out) when tokens != [] do
     [head | tail] = tokens
 
-    {next, tokens} =
-      case head do
-        {type, _val} when type in [:ident, :int, :float] ->
-          parse_statement(head, tail)
-      end
+    {current, rest} = append_statement(head, [], tail)
 
-    generate_ast(tokens, [next | out])
+    if tail == [],
+      do: [current | out],
+      else: generate_ast(rest, [current | out])
   end
-
-  # This will need some validation to ensure we want this value in out
-  defp generate_ast([{_type, val}], out), do: [val | out]
 
   defp generate_ast([], out), do: List.first(out)
 
-  defp parse_statement({_type, val}, expr) do
-    [peak | tail] = expr
+  defp append_statement({type, _val} = curr, stmt, next) do
+    previous_type =
+      if stmt == [] do
+        :start
+      else
+        {type, _} = hd(stmt)
+        type
+      end
 
-    case peak do
-      {peak_type, peak_val} when peak_type in @operators ->
-        # TODO - input validation on type or parse error
-        [{_tl_type, tl_val} | rest] = tail
-        {[peak_val, [val, tl_val]], rest}
+    {head, tail} =
+      if next == [] do
+        {nil, []}
+      else
+        [head | tail] = next
+        {head, tail}
+      end
+
+    cond do
+      type in @values and previous_type in @operators ->
+        append_statement(head, [curr | stmt], tail)
+
+      type in @operators and previous_type in @values ->
+        append_statement(head, [curr | stmt], tail)
+
+      type in @values and previous_type in @values ->
+        # This is a statement end indicator
+        statement =
+          [curr | stmt]
+          |> Enum.reverse()
+          |> parse_statement()
+
+        {statement, next}
+
+      previous_type == :start ->
+        append_statement(head, [curr], tail)
+
+      type in @operators and previous_type in @operators ->
+        raise "parser error"
     end
+  end
+
+  defp append_statement({_type, val}, [], next), do: {[val], next}
+  defp append_statement(nil, current, []), do: {parse_statement(current), []}
+  defp append_statement(nil, [], []), do: []
+  defp append_statement(curr, [], next), do: append_statement(hd(next), [curr], tl(next))
+
+  defp parse_statement([{_, val}]), do: val
+
+  defp parse_statement(statement) do
+    [{_, val} | [{_, operator} | rest]] = statement
+
+    next =
+      rest
+      |> parse_statement()
+      |> case do
+        result when is_list(result) -> Enum.reverse(result)
+        result -> result
+      end
+
+    [operator, [next, val]]
   end
 end
