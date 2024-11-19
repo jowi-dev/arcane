@@ -85,10 +85,6 @@ defmodule Arcane.Parser do
   defp parse_statement(statement) do
     [{_, val} | [{_, operator} | rest]] = statement
 
-    next =
-      rest
-      |> parse_statement()
-
-    [operator, [val, next]]
+    [operator, [val, parse_statement(rest)]]
   end
 end
