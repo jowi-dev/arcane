@@ -46,7 +46,7 @@ defmodule Arcane.Parser do
       {peak_type, peak_val} when peak_type in @operators ->
         # TODO - input validation on type or parse error
         [{_tl_type, tl_val} | rest] = tail
-        {[peak_val, val, tl_val], rest}
+        {[peak_val, [val, tl_val]], rest}
     end
   end
 end

@@ -18,6 +18,6 @@ defmodule Arcane.ParserTest do
       Token.int("2")
     ]
 
-    assert ["+", 1, 2] = Parser.parse_expression(tokens)
+    assert ["+", [1, 2]] = Parser.parse_expression(tokens)
   end
 end
