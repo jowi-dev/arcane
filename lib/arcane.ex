@@ -12,7 +12,7 @@ defmodule Arcane do
   def compile_expression(expr) do
     expr
     |> Lexer.pass_through()
-    |> Parser.generate_ast()
+    |> Parser.pass_through()
     |> Compiler.compile_s_expression()
     |> Compiler.compile_llvm(:stdout)
   end
@@ -24,7 +24,7 @@ defmodule Arcane do
 
     expr
     |> Lexer.pass_through()
-    |> Parser.generate_ast()
+    |> Parser.pass_through()
     |> Compiler.compile_s_expression()
     |> Compiler.compile_llvm(output_name)
   end

@@ -1,11 +1,25 @@
 defmodule Arcane.Token do
   @type t ::
-          {:operator, atom()}
-          | {:number, integer()}
+          {:number, integer()}
           | {:assign, atom()}
+          | {:comma, String.t()}
+          | {:assign, String.t()}
+          | {:plus, String.t()}
+          | {:float, float()}
+          | {:int, integer()}
+          | {:ident, String.t()}
+          | {:expr_open, String.t()}
+          | {:expr_close, String.t()}
+          | {:string, String.t()}
+          | {:paren_open, String.t()}
+          | {:paren_close, String.t()}
+          | {:declare, String.t()}
+          | {:illegal, String.t()}
+          | {:eat, nil}
 
-  @type value_types :: atom() | integer() | String.t()
+  @type value_types :: atom() | integer() | String.t() | float()
 
+  # Untested - unsure if I need these yet
   def illegal(val), do: {:illegal, val}
   def file_end, do: {:file_end, nil}
   def newline, do: {:newline, nil}
