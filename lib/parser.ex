@@ -76,8 +76,7 @@ defmodule Arcane.Parser do
     end
   end
 
-  defp append_statement({_type, val}, [], next), do: {[val], next}
-  defp append_statement(nil, current, []), do: {parse_statement(current), []}
+  defp append_statement(nil, current, []), do: {parse_statement(Enum.reverse(current)), []}
   defp append_statement(nil, [], []), do: []
   defp append_statement(curr, [], next), do: append_statement(hd(next), [curr], tl(next))
 
@@ -89,11 +88,7 @@ defmodule Arcane.Parser do
     next =
       rest
       |> parse_statement()
-      |> case do
-        result when is_list(result) -> Enum.reverse(result)
-        result -> result
-      end
 
-    [operator, [next, val]]
+    [operator, [val, next]]
   end
 end

@@ -31,16 +31,15 @@ defmodule Arcane.ParserTest do
     assert ["=", ["this", 2]] = Parser.parse_expression(tokens)
   end
 
-  test "parses an assign that is the result of an add"
-  #  test "parses an assign that is the result of an add" do
-  #    tokens = [
-  #      Token.ident("this"),
-  #      Token.assign(),
-  #      Token.int("1"),
-  #      Token.plus(),
-  #      Token.int("2")
-  #    ]
-  #
-  #    assert ["=", ["this", ["+", [1, 2]]]] = Parser.parse_expression(tokens)
-  #  end
+  test "parses an assign that is the result of an add" do
+    tokens = [
+      Token.ident("this"),
+      Token.assign(),
+      Token.int("1"),
+      Token.plus(),
+      Token.int("2")
+    ]
+
+    assert ["=", ["this", ["+", [1, 2]]]] = Parser.parse_expression(tokens)
+  end
 end
