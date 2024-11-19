@@ -41,6 +41,6 @@ defmodule Arcane.ParserTest do
   #      Token.int("2")
   #    ]
   #
-  #    assert ["=", ["this", 2]] = Parser.parse_expression(tokens)
+  #    assert ["=", ["this", ["+", [1, 2]]]] = Parser.parse_expression(tokens)
   #  end
 end
