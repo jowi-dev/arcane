@@ -14,11 +14,11 @@ UserStore.Users :: module =>
     # Type declaration is always -> at the end of a statement
     user = Repo.create(User) -> User.t()
 
-    # Type inference is a familiar :=
-    user := Repo.create(User) 
+    # Type inference is a familiar <-
+    user <- Repo.create(User) 
 
     # Pattern matching also available
-    %User{} = user := Repo.create(User)
+    %User{} = user <- Repo.create(User)
 
     {:ok, user}
   end
@@ -43,18 +43,25 @@ UserStore.Users :: module =>
 
   @pub validUserDoc(String.t()) -> boolean()
   validUserDoc :: (filename) =>
-    userLikesArcane :=
-      filename
-      |> Arcane.File.open(defer: :close) # Defer needs to be rethought for pipelining
-      |> Arcane.File.read_line()
-      |> Stream.map(line) =>
-        # do thing w/ line..
-        IO.inspect(line)
-        String.contains?(line, "ARCANE IS NEAT") ? true else "WIP"
-      end
-      |> Stream.find(line => line == true)
+    using
+      fileHandle <- Arcane.File.open(filename)
+      metric <- Arcane.Metrics.connect() =>
 
-    userLikesArcane || false
+          fileHandle
+          |> Arcane.File.read_line()
+          |> Stream.map(line) =>
+            # do thing w/ line..
+            IO.inspect(line)
+
+            value <- String.contains?(line, "ARCANE IS NEAT") ? true else "WIP"
+
+            Metrics.increment(metric, "user likes arcane", value)
+
+            value
+          end
+          |> Stream.find(line => line == true)
+
+    end
   end
 
   @doc """
@@ -71,7 +78,7 @@ UserStore.Users :: module =>
     # String concatenation + dereferencing
     values = Map.put(values, :name, "#{deref(user_ref).first} Apple")
 
-    result :=
+    result <-
         user_ref
         |> deref
         |> User.changes(values)
