@@ -44,23 +44,20 @@ UserStore.Users :: module =>
   @pub validUserDoc(String.t()) -> boolean()
   validUserDoc :: (filename) =>
     using
-      fileHandle <- Arcane.File.open(filename)
-      metric <- Arcane.Metrics.connect() =>
+      file <- Arcane.File.open(filename)
+      metric <- Arcane.Metrics.connect() 
+    =>
+     result <- 
+       file
+       |> Arcane.File.read_line()
+       |> Stream.map(line) =>
+         contains_arcane = String.contains?(line, "ARCANE IS NEAT")
+         Metrics.increment(metric, "user_likes_arcane", contains_arcane)
+         contains_arcane
+       end
+       |> Stream.find(line => line == true)
 
-          fileHandle
-          |> Arcane.File.read_line()
-          |> Stream.map(line) =>
-            # do thing w/ line..
-            IO.inspect(line)
-
-            value <- String.contains?(line, "ARCANE IS NEAT") ? true else "WIP"
-
-            Metrics.increment(metric, "user likes arcane", value)
-
-            value
-          end
-          |> Stream.find(line => line == true)
-
+      result || false
     end
   end
 
