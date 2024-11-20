@@ -43,6 +43,7 @@ UserStore.Users :: module =>
 
   @pub validUserDoc(String.t()) -> boolean()
   validUserDoc :: (filename) =>
+    userLikesArcane :=
       filename
       |> Arcane.File.open(defer: :close) # Defer needs to be rethought for pipelining
       |> Arcane.File.read_line()
@@ -52,9 +53,8 @@ UserStore.Users :: module =>
         String.contains?(line, "ARCANE IS NEAT") ? true else "WIP"
       end
       |> Stream.find(line => line == true)
-      =|>
-       nil => false
-       val => val
+
+    userLikesArcane || false
   end
 
   @doc """
@@ -71,20 +71,23 @@ UserStore.Users :: module =>
     # String concatenation + dereferencing
     values = Map.put(values, :name, "#{deref(user_ref).first} Apple")
 
-    user_ref
-    |> deref
-    |> User.changes(values)
-    |> Repo.update()
-    =|> 
-      {:ok, user} => {:ok, user}
-      {:error, reason} => {:error, reason}
+    result :=
+        user_ref
+        |> deref
+        |> User.changes(values)
+        |> Repo.update()
+
+    match result =>
+      {:ok, user} :: {:ok, user}
+      {:error, _} :: {:error, "Failed to update user"}
+    end
   end
 
   @priv checkIfBob(User.t()) -> {:ok, true} | {:ok, false} 
   checkIfBob :: ~p(user) => 
-   case user =>
-     %User{name: "Bob"} => {:ok, true}
-     _user => {:ok, false}
+   match user =>
+     %User{name: "Bob"} :: {:ok, true}
+     _user :: {:ok, false}
    end
   end 
 end
