@@ -1,49 +1,53 @@
 defmodule Arcane.Token do
-  defstruct [
-    line: 0,
-    col: 0,
-    term: nil,
-    type: :unknown
-  ]
+  defstruct line: 0,
+            col: 0,
+            term: nil,
+            type: :unknown
 
+  @type t :: %__MODULE__{
+          line: integer(),
+          col: integer(),
+          term: value_types(),
+          type: token_types()
+        }
 
-  @type t ::
-          {:number, integer()}
-          | {:assign, atom()}
-          | {:comma, String.t()}
-          | {:assign, String.t()}
-          | {:plus, String.t()}
-          | {:float, float()}
-          | {:int, integer()}
-          | {:ident, String.t()}
-          | {:expr_open, String.t()}
-          | {:expr_close, String.t()}
-          | {:string, String.t()}
-          | {:paren_open, String.t()}
-          | {:paren_close, String.t()}
-          | {:declare, String.t()}
-          | {:illegal, String.t()}
-          | {:eat, nil}
+  @type token_types ::
+          :number
+          | :assign
+          | :comma
+          | :assign
+          | :plus
+          | :float
+          | :int
+          | :ident
+          | :expr_open
+          | :expr_close
+          | :string
+          | :paren_open
+          | :paren_close
+          | :declare
+          | :illegal
+          | :eat
 
   @type value_types ::
           atom() | integer() | String.t() | float() | list(atom() | integer() | String.t())
 
   # Untested - unsure if I need these yet
-  def illegal(val), do: {:illegal, val}
-  def file_end, do: {:file_end, nil}
-  def newline, do: {:newline, nil}
+  def illegal(val), do: %__MODULE__{type: :illegal, term: val}
+  def file_end, do: %__MODULE__{type: :file_end, term: nil}
+  def newline, do: %__MODULE__{type: :newline, term: nil}
 
   # Lexer - Tested
-  def comma, do: {:comma, ","}
-  def assign, do: {:assign, "="}
-  def plus, do: {:plus, "+"}
-  def float(val), do: {:float, String.to_float(val)}
-  def int(val), do: {:int, String.to_integer(val)}
-  def ident(val), do: {:ident, val}
-  def expr_open, do: {:expr_open, "=>"}
-  def expr_close, do: {:expr_close, "end"}
-  def string(val), do: {:string, String.replace(val, "\"", "")}
-  def paren_l, do: {:paren_open, "("}
-  def paren_r, do: {:paren_close, ")"}
-  def declare, do: {:declare, "::"}
+  def comma, do: %__MODULE__{type: :comma, term: ","}
+  def assign, do: %__MODULE__{type: :assign, term: "="}
+  def plus, do: %__MODULE__{type: :plus, term: "+"}
+  def float(val), do: %__MODULE__{type: :float, term: String.to_float(val)}
+  def int(val), do: %__MODULE__{type: :int, term: String.to_integer(val)}
+  def ident(val), do: %__MODULE__{type: :ident, term: val}
+  def expr_open, do: %__MODULE__{type: :expr_open, term: "=>"}
+  def expr_close, do: %__MODULE__{type: :expr_close, term: "end"}
+  def string(val), do: %__MODULE__{type: :string, term: String.replace(val, "\"", "")}
+  def paren_l, do: %__MODULE__{type: :paren_open, term: "("}
+  def paren_r, do: %__MODULE__{type: :paren_close, term: ")"}
+  def declare, do: %__MODULE__{type: :declare, term: "::"}
 end

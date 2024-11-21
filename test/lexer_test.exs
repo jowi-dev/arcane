@@ -2,123 +2,145 @@ defmodule Arcane.LexerTest do
   use ExUnit.Case
 
   alias Arcane.Lexer
+  alias Arcane.Token
 
-  test "Tokenizes Adding" do
-    # Test your parser/lexer
-    tokens =
-      Lexer.tokenize("""
-        1 + 2
-      """)
+  describe "next_token/1" do
+    test "gets the next identifier" do
+      {token, rest} = Lexer.next_token("a = b")
 
-    assert tokens == [
-             {:int, 1},
-             {:plus, "+"},
-             {:int, 2}
-           ]
+      assert rest == " = b"
+      assert %Token{term: "a", type: :ident} = token
+    end
 
-    assert Lexer.tokenize("1 + 2") == Lexer.tokenize("1+2")
+    test "gets the next token" do
+      {token, rest} = Lexer.next_token("1 + 2")
+
+      assert rest == " + 2"
+      assert %Token{term: 1, type: :int} = token
+    end
   end
 
-  test "Tokenizes assignments" do
-    tokens =
-      Lexer.tokenize("""
-        thing = 1
-      """)
-
-    assert tokens == [
-             {:ident, "thing"},
-             {:assign, "="},
-             {:int, 1}
-           ]
-
-    assert Lexer.tokenize("thing = 1") == Lexer.tokenize("thing=1")
+  describe "peak_next_token/1" do
   end
 
-  test "Tokenizes comma" do
-    tokens =
-      Lexer.tokenize("""
-        thing,1
-      """)
+  describe "tokenize/1" do
+    test "Tokenizes Adding" do
+      # Test your parser/lexer
+      tokens =
+        Lexer.tokenize("""
+          1 + 2
+        """)
 
-    assert tokens == [
-             {:ident, "thing"},
-             {:comma, ","},
-             {:int, 1}
-           ]
+      assert tokens == [
+               {:int, 1},
+               {:plus, "+"},
+               {:int, 2}
+             ]
 
-    assert Lexer.tokenize("thing,1") == Lexer.tokenize("thing,1")
-  end
+      assert Lexer.tokenize("1 + 2") == Lexer.tokenize("1+2")
+    end
 
-  test "Tokenizes a float" do
-    tokens =
-      Lexer.tokenize("""
-      37.2
-      """)
+    test "Tokenizes assignments" do
+      tokens =
+        Lexer.tokenize("""
+          thing = 1
+        """)
 
-    assert tokens == [{:float, 37.2}]
-  end
+      assert tokens == [
+               {:ident, "thing"},
+               {:assign, "="},
+               {:int, 1}
+             ]
 
-  test "Tokenizes an int" do
-    tokens =
-      Lexer.tokenize("""
-      37
-      """)
+      assert Lexer.tokenize("thing = 1") == Lexer.tokenize("thing=1")
+    end
 
-    assert tokens == [{:int, 37}]
-  end
+    test "Tokenizes comma" do
+      tokens =
+        Lexer.tokenize("""
+          thing,1
+        """)
 
-  test "Tokenizes a string" do
-    tokens =
-      Lexer.tokenize("""
-      "hello world"
-      """)
+      assert tokens == [
+               {:ident, "thing"},
+               {:comma, ","},
+               {:int, 1}
+             ]
 
-    assert tokens == [{:string, "hello world"}]
-  end
+      assert Lexer.tokenize("thing,1") == Lexer.tokenize("thing,1")
+    end
 
-  test "Tokenizes expression open" do
-    tokens =
-      Lexer.tokenize("""
-      =>
-      """)
+    test "Tokenizes a float" do
+      tokens =
+        Lexer.tokenize("""
+        37.2
+        """)
 
-    assert tokens == [{:expr_open, "=>"}]
-  end
+      assert tokens == [{:float, 37.2}]
+    end
 
-  test "Tokenizes expression close" do
-    tokens =
-      Lexer.tokenize("""
-      end
-      """)
+    test "Tokenizes an int" do
+      tokens =
+        Lexer.tokenize("""
+        37
+        """)
 
-    assert tokens == [{:expr_close, "end"}]
-  end
+      assert tokens == [{:int, 37}]
+    end
 
-  test "Tokenizes paren open" do
-    tokens =
-      Lexer.tokenize("""
-      (
-      """)
+    test "Tokenizes a string" do
+      tokens =
+        Lexer.tokenize("""
+        "hello world"
+        """)
 
-    assert tokens == [{:paren_open, "("}]
-  end
+      assert tokens == [{:string, "hello world"}]
+    end
 
-  test "Tokenizes paren close" do
-    tokens =
-      Lexer.tokenize("""
-      ) 
-      """)
+    test "Tokenizes expression open" do
+      tokens =
+        Lexer.tokenize("""
+        =>
+        """)
 
-    assert tokens == [{:paren_close, ")"}]
-  end
+      assert tokens == [{:expr_open, "=>"}]
+    end
 
-  test "Tokenizes declaration" do
-    tokens =
-      Lexer.tokenize("""
-      ::
-      """)
+    test "Tokenizes expression close" do
+      tokens =
+        Lexer.tokenize("""
+        end
+        """)
 
-    assert tokens == [{:declare, "::"}]
+      assert tokens == [{:expr_close, "end"}]
+    end
+
+    test "Tokenizes paren open" do
+      tokens =
+        Lexer.tokenize("""
+        (
+        """)
+
+      assert tokens == [{:paren_open, "("}]
+    end
+
+    test "Tokenizes paren close" do
+      tokens =
+        Lexer.tokenize("""
+        ) 
+        """)
+
+      assert tokens == [{:paren_close, ")"}]
+    end
+
+    test "Tokenizes declaration" do
+      tokens =
+        Lexer.tokenize("""
+        ::
+        """)
+
+      assert tokens == [{:declare, "::"}]
+    end
   end
 
   # When it is time to parse more involved expressions - use this

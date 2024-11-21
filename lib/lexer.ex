@@ -23,8 +23,38 @@ defmodule Arcane.Lexer do
   """
   @spec tokenize(String.t()) :: [Token.t()]
   def tokenize(expr) do
-    expr
-    |> parse_expression("", [])
+    parse_expression(expr, "", [])
+  end
+
+  def next_token(<<c, rest::binary>>) do
+    {token, rest} = parse_char(c, rest)
+
+    {token, rest}
+  end
+
+  def peak_token(<<c, rest::binary>> = expr) do
+    {token, _rest} = parse_char(c, rest)
+
+    {token, expr}
+  end
+
+  defp parse_token(<<c, rest::binary>>, current, out) do
+    {{type, c} = tuple, rest} = parse_char(c, rest)
+
+    case type do
+      :ident when current == "" and c == @space ->
+        parse_expression(rest, "", out)
+
+      :ident ->
+        parse_expression(rest, <<current::binary, (<<c>>)>>, out)
+
+      :eat ->
+        parse_expression(rest, current, out)
+
+      _type ->
+        out = merge_expression(tuple, current, out)
+        parse_expression(rest, "", out)
+    end
   end
 
   # Parse the hot path first
@@ -88,7 +118,7 @@ defmodule Arcane.Lexer do
       {@colon, @colon} -> {Token.declare(), tl_rest}
       {@space, _} -> {Token.ident(@space), rest}
       {@newline, _} -> {{:eat, nil}, rest}
-      {val, _} -> {Token.ident(val), rest}
+      {val, _} -> {Token.ident(<<val>>), rest}
     end
   end
 

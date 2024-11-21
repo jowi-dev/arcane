@@ -5,6 +5,7 @@ defmodule Arcane.Parser do
   """
 
   alias Arcane.Parser.Context
+  alias Arcane.Parser.Lexer
   alias Arcane.Parser.Token
 
   @operators [:plus, :assign]
@@ -23,7 +24,9 @@ defmodule Arcane.Parser do
   - append statement to output
   """
   @spec parse(String.t(), Context.t(), [Token.t()]) :: [Token.t()]
-  def parse(_expr, _ctx, tokens) do 
+  def parse(expr, _ctx, tokens) do
+    Lexer.next_token(expr)
+
     tokens
   end
 
