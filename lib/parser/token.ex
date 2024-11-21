@@ -1,4 +1,12 @@
 defmodule Arcane.Token do
+  defstruct [
+    line: 0,
+    col: 0,
+    term: nil,
+    type: :unknown
+  ]
+
+
   @type t ::
           {:number, integer()}
           | {:assign, atom()}

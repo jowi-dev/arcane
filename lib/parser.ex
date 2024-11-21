@@ -4,13 +4,28 @@ defmodule Arcane.Parser do
   an AST for the compiler frontend to consume
   """
 
-  alias Arcane.Token
+  alias Arcane.Parser.Context
+  alias Arcane.Parser.Token
 
   @operators [:plus, :assign]
   @values [:ident, :float, :int, :string]
 
   @doc "delete this when parsing works"
   def pass_through(tokens), do: tokens
+
+  @doc """
+  This is the future of parsing. This function will handle moving through the string, creating tokens
+   via the Lexer, and appending those tokens to the current statement. At a high level
+
+  - Ingest expression
+  - Get next token
+  - determine if token completes the current statement
+  - append statement to output
+  """
+  @spec parse(String.t(), Context.t(), [Token.t()]) :: [Token.t()]
+  def parse(_expr, _ctx, tokens) do 
+    tokens
+  end
 
   @doc """
   Converts a tokenized list of the expression into an s_expression style list
