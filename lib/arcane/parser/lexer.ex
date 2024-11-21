@@ -26,34 +26,61 @@ defmodule Arcane.Lexer do
     parse_expression(expr, "", [])
   end
 
-  def next_token(<<c, rest::binary>>) do
-    {token, rest} = parse_char(c, rest)
+  def next_token(expr) do
+    {token, rest} = parse_token(expr, "")
 
     {token, rest}
   end
 
-  def peak_token(<<c, rest::binary>> = expr) do
-    {token, _rest} = parse_char(c, rest)
+  def peak_token(expr) do
+    {token, _rest} = parse_token(c, %Token{})
 
     {token, expr}
   end
 
-  defp parse_token(<<c, rest::binary>>, current, out) do
-    {{type, c} = tuple, rest} = parse_char(c, rest)
+  defp parse_token(<<c, rest::binary>>, %Token{term: term}) when not is_nil(term) do
+    append_recurse = fn ->
+      current = <<current::binary, (<<c>>)>>
+      parse_token(rest, current)
+    end
 
-    case type do
-      :ident when current == "" and c == @space ->
-        parse_expression(rest, "", out)
+    cond do
+      numeric?(c) and numeric?(current) ->
+        append_recurse.()
 
-      :ident ->
-        parse_expression(rest, <<current::binary, (<<c>>)>>, out)
+      c == ?. and numeric?(current) ->
+        append_recurse.()
+    end
 
-      :eat ->
-        parse_expression(rest, current, out)
+    #    case type do
+    #      :ident when current == "" and c == @space ->
+    #        parse_expression(rest, "", out)
+    #
+    #      :ident ->
+    #        parse_expression(rest, <<current::binary, (<<c>>)>>, out)
+    #
+    #      :eat ->
+    #        parse_expression(rest, current, out)
+    #
+    #      _type ->
+    #        out = merge_expression(tuple, current, out)
+    #        parse_expression(rest, "", out)
+    #    end
+  end
 
-      _type ->
-        out = merge_expression(tuple, current, out)
-        parse_expression(rest, "", out)
+  defp parse_token(<<c>>, %Token{term: nil}) do
+    cond do
+      numeric?(c) -> {Token.int(c), ""}
+      c in [?=, ?,, ?+] -> {parse_single(c), ""}
+      true -> {Token.ident(c), ""}
+    end
+  end
+
+  defp parse_token(<<c, rest::binary>>, %Token{term: nil}) do
+    case c do
+      numeric?(c) -> {Token.int(c), ""}
+      c in [?=, ?,, ?+] -> {parse_single(c), ""}
+      true -> {Token.ident(c), ""}
     end
   end
 
@@ -99,6 +126,14 @@ defmodule Arcane.Lexer do
       |> parse_value()
 
     [tuple | [value | out]]
+  end
+
+  defp parse_single(binary_value) do
+    case binary_value do
+      ?= -> Token.assign()
+      ?+ -> Token.plus()
+      ?, -> Token.comma()
+    end
   end
 
   defp parse_char(binary_val, rest) do
