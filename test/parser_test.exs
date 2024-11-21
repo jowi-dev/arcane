@@ -1,45 +1,64 @@
 defmodule Arcane.ParserTest do
   use ExUnit.Case
-  doctest Arcane.Parser
+  # doctest Arcane.Parsec
 
-  alias Arcane.Parser
-  alias Arcane.Token
-
-  test "if given a string, pass through" do
-    str = "hello world"
-
-    assert "hello world" = Parser.pass_through(str)
-  end
+  alias Arcane.Parsec
 
   test "parses an add statement" do
-    tokens = [
-      Token.int("1"),
-      Token.plus(),
-      Token.int("2")
-    ]
+    assert {:ok, [:plus, [{:int, 1}, {:int, 2}]]} =
+             Arcane.Parser.parse("1 + 2")
+  end
 
-    assert ["+", [1, 2]] = Parser.parse_expression(tokens)
+  test "parses an add statement - no whitespace" do
+    assert {:ok, [:plus, [{:int, 1}, {:int, 2}]]} =
+             Arcane.Parser.parse("1+2")
   end
 
   test "parses an assign statement" do
-    tokens = [
-      Token.ident("this"),
-      Token.assign(),
-      Token.int("2")
-    ]
+    assert {:ok, [:assign, [{:identifier, "this"}, {:int, 2}]]} =
+             Arcane.Parser.parse("this = 2")
+  end
 
-    assert ["=", ["this", 2]] = Parser.parse_expression(tokens)
+  test "parses an assign statement - no whitespace" do
+    assert {:ok, [:assign, [{:identifier, "this"}, {:int, 2}]]} =
+             Arcane.Parser.parse("this=2")
   end
 
   test "parses an assign that is the result of an add" do
-    tokens = [
-      Token.ident("this"),
-      Token.assign(),
-      Token.int("1"),
-      Token.plus(),
-      Token.int("2")
-    ]
+    assert {:ok, [:assign, [{:identifier, "this"}, [:plus, [{:int, 1}, {:int, 2}]]]]} =
+             Arcane.Parser.parse("this = 1 + 2")
+  end
 
-    assert ["=", ["this", ["+", [1, 2]]]] = Parser.parse_expression(tokens)
+  test "parses an assign that is the result of an add - no whitespace" do
+    assert {:ok, [:assign, [{:identifier, "this"}, [:plus, [{:int, 1}, {:int, 2}]]]]} =
+             Arcane.Parser.parse("this=1+2")
+  end
+
+  test "multiple statements" do
+    assert {:ok,
+            [
+              [:assign, [{:identifier, "first"}, {:int, 1}]],
+              [:assign, [{:identifier, "second"}, {:int, 2}]],
+              [:plus, [{:identifier, "first"}, {:identifier, "second"}]]
+            ]} =
+             Arcane.Parser.parse("""
+             first = 1
+             second = 2
+             first + second
+             """)
+  end
+
+  test "reports meaningful errors" do
+    assert {:error, error} = Arcane.Parser.parse("1 + + 2")
+    assert error =~ "Expected number or identifier but found"
+    assert error =~ "1 + + 2"
+    assert error =~ "    ^"
+  end
+
+  test "statements don't start with operators" do
+    assert {:error, error} = Arcane.Parser.parse("+ 2")
+    assert error =~ "Expected number or identifier but found"
+    assert error =~ "+ 2"
+    assert error =~ "^"
   end
 end
