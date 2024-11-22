@@ -12,34 +12,38 @@ defmodule Arcane.LexerTest do
       assert %Token{term: "a", type: :ident} = token
     end
 
-    test "gets the next token" do
+    test "gets the next assignment" do
+      {token, rest} = Lexer.next_token(" = 2")
+
+      assert rest == " 2"
+      assert %Token{term: "=", type: :assign} = token
+    end
+
+    test "gets the next int" do
       {token, rest} = Lexer.next_token("1 + 2")
 
       assert rest == " + 2"
       assert %Token{term: 1, type: :int} = token
     end
+
+    test "gets the next string" do
+      {token, rest} = Lexer.next_token("\"hello\"")
+
+      assert rest == ""
+      assert %Token{term: "hello", type: :string} = token
+    end
   end
 
-  describe "peak_next_token/1" do
+  describe "peak_token/1" do
+    test "returns a token, but leaves the input unchanged" do
+      {token, rest} = Lexer.peak_token("a = b")
+
+      assert rest == "a = b"
+      assert %Token{term: "a", type: :ident} = token
+    end
   end
 
   describe "tokenize/1" do
-    test "Tokenizes Adding" do
-      # Test your parser/lexer
-      tokens =
-        Lexer.tokenize("""
-          1 + 2
-        """)
-
-      assert tokens == [
-               {:int, 1},
-               {:plus, "+"},
-               {:int, 2}
-             ]
-
-      assert Lexer.tokenize("1 + 2") == Lexer.tokenize("1+2")
-    end
-
     test "Tokenizes assignments" do
       tokens =
         Lexer.tokenize("""

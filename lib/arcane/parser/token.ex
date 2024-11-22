@@ -39,11 +39,21 @@ defmodule Arcane.Token do
 
   # Lexer - Tested
   def comma, do: %__MODULE__{type: :comma, term: ","}
-  def assign, do: %__MODULE__{type: :assign, term: "="}
+  def assign(token), do: %__MODULE__{type: :assign, term: "=", line: token.line, col: token.col}
   def plus, do: %__MODULE__{type: :plus, term: "+"}
   def float(val), do: %__MODULE__{type: :float, term: String.to_float(val)}
-  def int(val), do: %__MODULE__{type: :int, term: String.to_integer(val)}
-  def ident(val), do: %__MODULE__{type: :ident, term: val}
+
+  def int(token),
+    do: %__MODULE__{
+      type: :int,
+      term: String.to_integer(token.term),
+      line: token.line,
+      col: token.col
+    }
+
+  def ident(token),
+    do: %__MODULE__{type: :ident, term: token.term, line: token.line, col: token.col}
+
   def expr_open, do: %__MODULE__{type: :expr_open, term: "=>"}
   def expr_close, do: %__MODULE__{type: :expr_close, term: "end"}
   def string(val), do: %__MODULE__{type: :string, term: String.replace(val, "\"", "")}
