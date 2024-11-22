@@ -43,7 +43,6 @@ defmodule Arcane.Parser.Lexer do
 
       # =>
       <<?=>> == term and c == ?> ->
-
         token = %{token | term: <<term::binary, (<<c>>)>>}
         token = identify_token(token)
         {token, rest}
@@ -100,7 +99,6 @@ defmodule Arcane.Parser.Lexer do
   #  Given a completed term - associate it with the type of token it should be
   # -----------------------------------------------------------------------------
   defp identify_token(%Token{term: term, type: :unknown} = token) do
-
     cond do
       is_nil(term) -> Token.file_end()
       term == "=" -> Token.assign(token)
