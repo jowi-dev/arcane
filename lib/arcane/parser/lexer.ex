@@ -27,60 +27,77 @@ defmodule Arcane.Lexer do
   end
 
   def next_token(expr) do
-    {token, rest} = parse_token(expr, "")
+    {token, rest} = parse_token(expr, %Token{})
 
     {token, rest}
   end
 
   def peak_token(expr) do
-    {token, _rest} = parse_token(c, %Token{})
+    {token, _rest} = parse_token(expr, %Token{})
 
     {token, expr}
   end
 
-  defp parse_token(<<c, rest::binary>>, %Token{term: term}) when not is_nil(term) do
+  defp parse_token(<<c, n,  rest::binary>> = str, %Token{term: term} = token) when not is_nil(term) do
     append_recurse = fn ->
-      current = <<current::binary, (<<c>>)>>
-      parse_token(rest, current)
+      token = %{token | term: <<term::binary, (<<c>>)>>}
+      |> IO.inspect(limit: :infinity, pretty: true, label: "")
+
+      parse_token(<<n ,rest::binary>>, token)
     end
 
     cond do
-      numeric?(c) and numeric?(current) ->
-        append_recurse.()
+      c in [?\s, ?\t, ?\n] ->
+          token = identify_token(token)
+          {token, str}
 
-      c == ?. and numeric?(current) ->
+      float?(term) and c in ?0..?9 ->
         append_recurse.()
+      c in ?0..?9 and numeric?(term) ->
+        append_recurse.()
+      identifier?(term) and identifier?(<<c>>) ->
+        append_recurse.()
+        
+      # Float case
+        c == ?. and numeric?(term) and n in ?0..?9 ->
+        token = %{token | term:  <<term::binary, (<<c>>), (<<n>>)>>}
+        parse_token(rest, token)
+
+      true ->
+          token = identify_token(token)
+          {token, str}
+
     end
-
-    #    case type do
-    #      :ident when current == "" and c == @space ->
-    #        parse_expression(rest, "", out)
-    #
-    #      :ident ->
-    #        parse_expression(rest, <<current::binary, (<<c>>)>>, out)
-    #
-    #      :eat ->
-    #        parse_expression(rest, current, out)
-    #
-    #      _type ->
-    #        out = merge_expression(tuple, current, out)
-    #        parse_expression(rest, "", out)
-    #    end
   end
 
+  # This function is important to get a handle on *what* the token might be
   defp parse_token(<<c>>, %Token{term: nil}) do
     cond do
-      numeric?(c) -> {Token.int(c), ""}
+      c in ?0..?9 -> {Token.int(c), ""}
+      c in ?a..?z or c in ?A..?Z -> {Token.ident(<<c>>), ""}
       c in [?=, ?,, ?+] -> {parse_single(c), ""}
       true -> {Token.ident(c), ""}
     end
   end
 
-  defp parse_token(<<c, rest::binary>>, %Token{term: nil}) do
-    case c do
-      numeric?(c) -> {Token.int(c), ""}
-      c in [?=, ?,, ?+] -> {parse_single(c), ""}
-      true -> {Token.ident(c), ""}
+  defp parse_token(<<c, rest::binary>>, %Token{term: nil} = token), do: parse_token(rest, %{token | term: <<c>>})
+  #    cond do
+  #      c in ?0..?9 -> {Token.int(c), ""}
+  #      c in ?a..?z or c in ?A..?Z or c == ?_ -> 
+  #      c in [?=, ?,, ?+] -> {parse_single(c), ""}
+  #      true -> {Token.ident(c), ""}
+  #    end
+  #  end
+
+
+  defp identify_token(%Token{term: term, type: :unknown} = token) do 
+
+    token
+      |> IO.inspect(limit: :infinity, pretty: true, label: "")
+    cond do
+      identifier?(term) -> Token.ident(term)
+      numeric?(term) -> Token.int(term)
+      true -> Token.illegal(term)
     end
   end
 
@@ -168,6 +185,9 @@ defmodule Arcane.Lexer do
       true -> Token.ident(val)
     end
   end
+
+  @spec identifier?(String.t()) :: boolean()
+  defp identifier?(val), do: val =~ ~r/^[a-zA-Z][a-zA-Z0-9_]*$/
 
   @spec numeric?(String.t()) :: boolean()
   defp numeric?(val), do: val =~ ~r/^\d+$/
