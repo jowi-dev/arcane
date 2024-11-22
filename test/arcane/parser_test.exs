@@ -1,8 +1,7 @@
 defmodule Arcane.ParserTest do
   use ExUnit.Case
   # doctest Arcane.Parsec
-
-  alias Arcane.Parsec
+  alias Arcane.Parser.Token
 
   test "parses an add statement" do
     assert {:ok, [:plus, [{:int, 1}, {:int, 2}]]} =
@@ -15,7 +14,7 @@ defmodule Arcane.ParserTest do
   end
 
   test "parses an assign statement" do
-    assert {:ok, [:assign, [{:identifier, "this"}, {:int, 2}]]} =
+    assert {:ok, [[%Token{type: :assign}, [%Token{type: :ident, term: "this"}, %Token{type: :int, term: 2}]]]} =
              Arcane.Parser.parse("this = 2")
   end
 

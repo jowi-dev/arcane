@@ -23,11 +23,16 @@ defmodule Arcane.Parser do
   - determine if token completes the current statement
   - append statement to output
   """
-  @spec parse(String.t(), Context.t(), [Token.t()]) :: [Token.t()]
-  def parse(expr, _ctx, tokens) do
-    Lexer.next_token(expr)
+  @spec parse(String.t()) :: {:ok, [[Token.t()]]}
+  def parse(expr), do: parse(expr, %Context{}, [])
 
-    tokens
+  @spec parse(String.t(), Context.t(), [Token.t()]) :: {:ok, [[Token.t()]]}
+  def parse(expr, _ctx, _tokens) do
+    with {token1, rest} <- Lexer.next_token(expr),
+         {oper, rest} <- Lexer.next_token(rest),
+         {token2, ""} <- Lexer.next_token(rest) do
+      {:ok, [[oper, [token1, token2]]]}
+    end
   end
 
   @doc """
