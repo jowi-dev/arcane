@@ -1,4 +1,4 @@
-defmodule Arcane.Token do
+defmodule Arcane.Parser.Token do
   defstruct line: 0,
             col: 0,
             term: nil,
