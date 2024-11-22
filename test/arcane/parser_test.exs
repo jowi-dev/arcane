@@ -14,12 +14,24 @@ defmodule Arcane.ParserTest do
   end
 
   test "parses an assign statement" do
-    assert {:ok, [[%Token{type: :assign}, [%Token{type: :ident, term: "this"}, %Token{type: :int, term: 2}]]]} =
+    assert {:ok,
+            [
+              [
+                %Token{type: :assign},
+                [%Token{type: :ident, term: "this"}, %Token{type: :int, term: 2}]
+              ]
+            ]} =
              Arcane.Parser.parse("this = 2")
   end
 
   test "parses an assign statement - no whitespace" do
-    assert {:ok, [:assign, [{:identifier, "this"}, {:int, 2}]]} =
+    assert {:ok,
+            [
+              [
+                %Token{type: :assign},
+                [%Token{type: :ident, term: "this"}, %Token{type: :int, term: 2}]
+              ]
+            ]} =
              Arcane.Parser.parse("this=2")
   end
 

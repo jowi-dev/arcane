@@ -28,8 +28,8 @@ defmodule Arcane.Parser do
 
   @spec parse(String.t(), Context.t(), [Token.t()]) :: {:ok, [[Token.t()]]}
   def parse(expr, _ctx, _tokens) do
-    with {token1, rest} <- Lexer.next_token(expr),
-         {oper, rest} <- Lexer.next_token(rest),
+    with {token1, rest} <- Lexer.next_token(expr) |> IO.inspect(),
+         {oper, rest} <- Lexer.next_token(rest) |> IO.inspect(),
          {token2, ""} <- Lexer.next_token(rest) do
       {:ok, [[oper, [token1, token2]]]}
     end
