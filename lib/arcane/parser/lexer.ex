@@ -43,7 +43,6 @@ defmodule Arcane.Parser.Lexer do
 
       # =>
       <<?=>> == term and c == ?> ->
-        IO.puts("EQUAL")
 
         token = %{token | term: <<term::binary, (<<c>>)>>}
         token = identify_token(token)
@@ -51,7 +50,6 @@ defmodule Arcane.Parser.Lexer do
 
       # =
       <<?=>> == term ->
-        IO.puts("EQUAL")
         token = Token.assign(token)
         {token, str}
 
@@ -74,7 +72,7 @@ defmodule Arcane.Parser.Lexer do
       # This means we've hit a point where consistency is broken; identify what we have and exit
       true ->
         token = identify_token(token)
-        {token, IO.inspect(str, label: :after)}
+        {token, str}
     end
   end
 
@@ -82,7 +80,7 @@ defmodule Arcane.Parser.Lexer do
 
   defp parse_token(<<c, rest::binary>>, %Token{term: nil, type: :unknown} = token)
        when c not in [?\s, ?\t, ?\n, ?", ?\\],
-       do: parse_token(rest |> IO.inspect(), %{token | term: <<c>>})
+       do: parse_token(rest, %{token | term: <<c>>})
 
   defp parse_token(<<?", rest::binary>>, %Token{term: nil, type: :unknown} = token),
     do: parse_token(rest, %{token | type: :string, term: "\""})
@@ -102,7 +100,6 @@ defmodule Arcane.Parser.Lexer do
   #  Given a completed term - associate it with the type of token it should be
   # -----------------------------------------------------------------------------
   defp identify_token(%Token{term: term, type: :unknown} = token) do
-    IO.inspect(token)
 
     cond do
       is_nil(term) -> Token.file_end()
