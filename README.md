@@ -27,8 +27,7 @@ UserStore.Users :: module =>
   renderUser :: (user) =>
     stop = false -> boolean()
 
-    # Uninitialized variables are always initialized by the compiler
-    # Size always set to the maximum of their type
+    # variables must be initialized! this will result in a compiler error
     input -> Arcane.UserLand.KeyboardInput.t()
 
     renderStart <- Label
