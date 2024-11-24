@@ -27,16 +27,18 @@ UserStore.Users :: module =>
   renderUser :: (user) =>
     stop = false -> boolean()
 
-    # Uninitialized variables are always set to nil
+    # Uninitialized variables are always initialized by the compiler
     # Size always set to the maximum of their type
     input -> Arcane.UserLand.KeyboardInput.t()
 
-    Arcane.Loop.infinite(() =>
-      drawUser(user)
-      input = Arcane.UserLand.gatherInput()
+    renderStart <- Label
 
-      Arcane.Loop.exitOn(input.keydown == "C" and input.modifier == "Ctrl")
-    end)
+    drawUser(user)
+    input = Arcane.UserLand.gatherInput()
+
+    # Rather than having loop ceremony, we use jump statements
+    # jumpEqual also available
+    jumpNotEqual renderStart [{input.keydown, "C"}, {input.modifier, "Ctrl"}]
 
     IO.puts("Ctrl-C Pressed. Goodbye")
   end
@@ -51,7 +53,7 @@ UserStore.Users :: module =>
        file
        |> Arcane.File.read_line()
        |> Stream.map(line) =>
-         contains_arcane = String.contains?(line, "ARCANE IS NEAT")
+         contains_arcane = String.contains?(line, "ARCANE IS NEAT") -> String.t()
          Metrics.increment(metric, "user_likes_arcane", contains_arcane)
          contains_arcane
        end

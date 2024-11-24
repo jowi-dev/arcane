@@ -17,13 +17,13 @@ defmodule Arcane.Parser.Statement do
   """
   defstruct complete?: false,
             state: :init,
-            current: nil,
+            current: [],
             expected: :value
 
   @type t :: %{
           complete?: boolean(),
           state: :init | :parse | :complete,
-          current: Arcane.Parser.Token.t() | nil,
+          tokens: [Arcane.Parser.Token.t()],
           expected: :value | :operator
         }
 end

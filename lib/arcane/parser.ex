@@ -26,14 +26,18 @@ defmodule Arcane.Parser do
   @spec parse(String.t()) :: {:ok, [[Token.t()]]}
   def parse(expr), do: parse(expr, %Context{}, [])
 
+
   @spec parse(String.t(), Context.t(), [Token.t()]) :: {:ok, [[Token.t()]]}
-  def parse(expr, _ctx, _tokens) do
+  def parse(expr, _ctx, _tokens) when expr != ""  do
     with {token1, rest} <- Lexer.next_token(expr) |> IO.inspect(),
          {oper, rest} <- Lexer.next_token(rest) |> IO.inspect(),
          {token2, ""} <- Lexer.next_token(rest) do
       {:ok, [[oper, [token1, token2]]]}
     end
   end
+
+  def parse("", %{status: :ok, statements: stmt}),  do: {:ok, stmt}
+  def parse("", %{status: :error, message: msg}), do: {:error, msg}
 
   @doc """
   Converts a tokenized list of the expression into an s_expression style list
