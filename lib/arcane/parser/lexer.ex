@@ -108,6 +108,7 @@ defmodule Arcane.Parser.Lexer do
     cond do
       is_nil(term) -> Token.file_end()
       term == "=" -> Token.assign(token)
+      term == "+" -> Token.plus()
       identifier?(term) -> Token.ident(token)
       numeric?(term) -> Token.int(token)
       true -> Token.illegal(term)

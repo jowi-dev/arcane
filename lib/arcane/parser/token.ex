@@ -39,9 +39,12 @@ defmodule Arcane.Parser.Token do
 
   # Lexer - Tested
   def comma, do: %__MODULE__{type: :comma, term: ","}
+  def assign(token \\ %__MODULE__{})
   def assign(token), do: %__MODULE__{type: :assign, term: "=", line: token.line, col: token.col}
   def plus, do: %__MODULE__{type: :plus, term: "+"}
   def float(val), do: %__MODULE__{type: :float, term: String.to_float(val)}
+
+  def int(num) when is_number(num), do: int(%__MODULE__{term: "#{num}"})
 
   def int(token),
     do: %__MODULE__{
@@ -50,6 +53,9 @@ defmodule Arcane.Parser.Token do
       line: token.line,
       col: token.col
     }
+
+  def ident(ident) when is_binary(ident),
+    do: %__MODULE__{type: :ident, term: ident, line: 0, col: 0}
 
   def ident(token),
     do: %__MODULE__{type: :ident, term: token.term, line: token.line, col: token.col}

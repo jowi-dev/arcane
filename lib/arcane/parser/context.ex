@@ -3,6 +3,15 @@ defmodule Arcane.Parser.Context do
             line: nil,
             col: nil,
             status: :ok,
-            current: nil,
+            current: %Arcane.Parser.Statement{},
             message: ""
+
+  @type t :: %{
+          filename: String.t(),
+          line: non_neg_integer(),
+          col: non_neg_integer(),
+          state: :ok | :error,
+          current: Arcane.Parser.Statement.t(),
+          message: String.t()
+        }
 end

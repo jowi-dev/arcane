@@ -1,42 +1,51 @@
 defmodule Arcane.ParserTest do
   use ExUnit.Case
-  # doctest Arcane.Parsec
   alias Arcane.Parser.Token
 
   test "parses an add statement" do
-    assert {:ok, [:plus, [{:int, 1}, {:int, 2}]]} =
+    plus = Token.plus()
+    one = Token.int(1)
+    two = Token.int(2)
+
+    assert {:ok, [[^plus, [^one, ^two]]]} =
              Arcane.Parser.parse("1 + 2")
   end
 
   test "parses an add statement - no whitespace" do
-    assert {:ok, [:plus, [{:int, 1}, {:int, 2}]]} =
+    plus = Token.plus()
+    one = Token.int(1)
+    two = Token.int(2)
+
+    assert {:ok, [[^plus, [^one, ^two]]]} =
              Arcane.Parser.parse("1+2")
   end
 
   test "parses an assign statement" do
-    assert {:ok,
-            [
-              [
-                %Token{type: :assign},
-                [%Token{type: :ident, term: "this"}, %Token{type: :int, term: 2}]
-              ]
-            ]} =
+    assign = Token.assign()
+    this = Token.ident("this")
+    two = Token.int(2)
+
+    assert {:ok, [[^assign, [^this, ^two]]]} =
              Arcane.Parser.parse("this = 2")
   end
 
   test "parses an assign statement - no whitespace" do
-    assert {:ok,
-            [
-              [
-                %Token{type: :assign},
-                [%Token{type: :ident, term: "this"}, %Token{type: :int, term: 2}]
-              ]
-            ]} =
+    assign = Token.assign()
+    this = Token.ident("this")
+    two = Token.int(2)
+
+    assert {:ok, [[^assign, [^this, ^two]]]} =
              Arcane.Parser.parse("this=2")
   end
 
   test "parses an assign that is the result of an add" do
-    assert {:ok, [:assign, [{:identifier, "this"}, [:plus, [{:int, 1}, {:int, 2}]]]]} =
+    assign = Token.assign()
+    plus = Token.plus()
+    this = Token.ident("this")
+    one = Token.int(1)
+    two = Token.int(2)
+
+    assert {:ok, [^assign, [^this, [^plus, [^one, ^two]]]]} =
              Arcane.Parser.parse("this = 1 + 2")
   end
 
