@@ -27,9 +27,12 @@ defmodule Arcane.Parser.Statement do
           message: String.t()
         }
 
+  def new() do
+    %__MODULE__{}
+  end
+
   @spec append(__MODULE__.t(), Arcane.Token.t()) :: __MODULE__.t()
-  def append(%{tokens: [%{family: curr_fam} | _]} = statement, %{family: new_fam} = token)
-      when curr_fam != new_fam do
+  def append(%{expected: family} = statement, %{family: family} = token) do
     statement = Map.put(statement, :tokens, [token | statement.tokens])
 
     if complete?(statement) do
