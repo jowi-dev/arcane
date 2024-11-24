@@ -36,9 +36,8 @@ defmodule Arcane.Parser.LexerTest do
 
   describe "peak_token/1" do
     test "returns a token, but leaves the input unchanged" do
-      {token, rest} = Lexer.peak_token("a = b")
+      token = Lexer.peak_token("a = b")
 
-      assert rest == "a = b"
       assert %Token{term: "a", type: :ident} = token
     end
   end

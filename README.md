@@ -6,11 +6,25 @@ TLDR - A hammer so I can see the world as a nail
 
 ### Syntax Pending
 ```elixir
-UserStore.Users :: module => 
+UserStore.Users :: module(%{
+    # Dependencies declared as parameters of the module
+    attrs: %{ },
+    deps: [
+        Arcane.Repo,
+        Arcane.UserLand
+    ],
+    c_deps: [ SDL ],
+    expands: [ Arcane.MemoryReference, Arcane.Loop ]
+}) => 
 
-  @doc "Creates a user"
-  @pub createUser() -> {:ok, User.t()}
-  createUser :: () =>
+  @doc """
+  Creates a user
+
+  createUser/0
+  input: None
+  output: {:ok, User.t()}
+  """
+  createUser :: func() =>
     # Type declaration is always -> at the end of a statement
     user = Repo.create(User) -> User.t()
 
@@ -28,16 +42,27 @@ UserStore.Users :: module =>
     stop = false -> boolean()
 
     # variables must be initialized! this will result in a compiler error
-    input -> Arcane.UserLand.KeyboardInput.t()
+    input -> UserLand.KeyboardInput.t()
+
+    # TODO - do we want labeled jump loops or more traditional looping?
+    renderLoop :: loop (
+        until: input.keyDown == "C" and input.modifier == "Ctrl",
+        max: :infinity
+    ) =>
+        SDL.draw(user)
+        input = UserLand.gatherInput()
+    end
 
     renderStart <- Label
 
     drawUser(user)
-    input = Arcane.UserLand.gatherInput()
+    input <- Arcane.UserLand.gatherInput()
 
     # Rather than having loop ceremony, we use jump statements
     # jumpEqual also available
-    jumpNotEqual renderStart [{input.keydown, "C"}, {input.modifier, "Ctrl"}]
+    if not (input.keydown == "C" and input.modifier == "Ctrl") do
+        jump renderStart
+    end
 
     IO.puts("Ctrl-C Pressed. Goodbye")
   end
@@ -88,8 +113,7 @@ UserStore.Users :: module =>
     end
   end
 
-  @priv checkIfBob(User.t()) -> {:ok, true} | {:ok, false} 
-  checkIfBob :: ~p(user) => 
+  checkIfBob :: pfunc(user -> User.t()) -> {:ok, true} | {:ok, false} => 
    match user =>
      %User{name: "Bob"} :: {:ok, true}
      _user :: {:ok, false}

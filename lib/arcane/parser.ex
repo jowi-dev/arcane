@@ -6,6 +6,7 @@ defmodule Arcane.Parser do
 
   alias Arcane.Parser.Context
   alias Arcane.Parser.Lexer
+  alias Arcane.Parser.Statement
   alias Arcane.Parser.Token
 
   @operators [:plus, :assign]
@@ -23,21 +24,41 @@ defmodule Arcane.Parser do
   - determine if token completes the current statement
   - append statement to output
   """
-  @spec parse(String.t()) :: {:ok, [[Token.t()]]}
-  def parse(expr), do: parse(expr, %Context{}, [])
+  @spec parse(String.t(), Context.t()) :: {:ok, [[Token.t()]]} | {:error, String.t()}
+  def parse(expr, ctx \\ %Context{}) do
+    case parse_statement(expr) do
+      {:ok, statement, rest} when rest != "" ->
+        ctx = put_in(ctx, :statements, [statement | ctx.statements])
+        parse(rest, ctx)
 
+      {:ok, statement, ""} ->
+        {:ok, [statement | ctx.statements]}
 
-  @spec parse(String.t(), Context.t(), [Token.t()]) :: {:ok, [[Token.t()]]}
-  def parse(expr, _ctx, _tokens) when expr != ""  do
-    with {token1, rest} <- Lexer.next_token(expr) |> IO.inspect(),
-         {oper, rest} <- Lexer.next_token(rest) |> IO.inspect(),
-         {token2, ""} <- Lexer.next_token(rest) do
-      {:ok, [[oper, [token1, token2]]]}
+      {:error, statement, _rest} ->
+        {:error, statement.message}
     end
   end
 
-  def parse("", %{status: :ok, statements: stmt}),  do: {:ok, stmt}
-  def parse("", %{status: :error, message: msg}), do: {:error, msg}
+  @spec parse_statement(String.t(), Statement.t()) :: {:ok | :error, Statement.t()}
+  def parse_statement(expr, stmt \\ %Statement{}) do
+    {%{family: family} = token, rest} = Lexer.next_token(expr)
+
+    case Statement.append(stmt, token) do
+      %{state: :complete} = statement ->
+        # peak next token to ensure there isnt a continuation
+        %{family: new_family} = Lexer.peak_token(rest)
+
+        if new_family == family,
+          do: {:ok, statement, rest},
+          else: parse_statement(rest, statement)
+
+      %{state: :error} = statement ->
+        {:error, statement, rest}
+
+      statement ->
+        parse_statement(rest, statement)
+    end
+  end
 
   @doc """
   Converts a tokenized list of the expression into an s_expression style list
@@ -106,12 +127,4 @@ defmodule Arcane.Parser do
   defp append_statement(nil, current, []), do: {parse_statement(Enum.reverse(current)), []}
   defp append_statement(nil, [], []), do: []
   defp append_statement(curr, [], next), do: append_statement(hd(next), [curr], tl(next))
-
-  defp parse_statement([{_, val}]), do: val
-
-  defp parse_statement(statement) do
-    [{_, val} | [{_, operator} | rest]] = statement
-
-    [operator, [val, parse_statement(rest)]]
-  end
 end

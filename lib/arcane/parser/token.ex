@@ -2,7 +2,8 @@ defmodule Arcane.Parser.Token do
   defstruct line: 0,
             col: 0,
             term: nil,
-            type: :unknown
+            type: :unknown,
+            family: :unknown
 
   @type t :: %__MODULE__{
           line: integer(),
