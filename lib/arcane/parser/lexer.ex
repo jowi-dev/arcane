@@ -65,8 +65,14 @@ defmodule Arcane.Parser.Lexer do
         parse_token(rest, token)
 
       # String case
-      token.type == :string and c != ?" ->
-        append_recurse.()
+      token.type == :string ->
+        if c == ?" do
+          token = %{token | term: <<term::binary, (<<c>>)>>}
+          token = identify_token(token)
+          {token, rest}
+        else
+          append_recurse.()
+        end
 
       # This means we've hit a point where consistency is broken; identify what we have and exit
       true ->
@@ -84,9 +90,9 @@ defmodule Arcane.Parser.Lexer do
   defp parse_token(<<?", rest::binary>>, %Token{term: nil, type: :unknown} = token),
     do: parse_token(rest, %{token | type: :string, term: "\""})
 
-  #  # eat whitespace
-  #  defp parse_token(<<_c, rest::binary>>, %Token{term: _, type: :unknown} = token),
-  #  do: parse_token(rest, token) |> IO.inspect(label: :whitespace)
+  # eat whitespace
+  defp parse_token(<<_c, rest::binary>>, %Token{term: _, type: :unknown} = token),
+    do: parse_token(rest, token)
 
   #  # don't eat whitespace in strings
   #  defp parse_token(<<c, rest::binary>>, %Token{term: term, type: :string} = token),
