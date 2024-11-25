@@ -32,31 +32,40 @@ defmodule Arcane.Parser do
         parse(rest, ctx)
 
       {:ok, statement, ""} ->
-        {:ok, [statement | ctx.statements]}
+        tokens =
+          ctx
+          |> Map.put(:statements, [statement | ctx.statements])
+          |> then(fn ctx -> Enum.map(ctx.statements, &Statement.to_tokens/1) end)
+
+        {:ok, tokens}
 
       {:error, statement, _rest} ->
         {:error, statement.message}
     end
   end
 
-  @spec parse_statement(String.t(), Statement.t()) :: {:ok | :error, Statement.t()}
+  @spec parse_statement(String.t(), Statement.t()) :: {:ok | :error, Statement.t(), String.t()}
   def parse_statement(expr, stmt \\ %Statement{}) do
     {%{family: family} = token, rest} = Lexer.next_token(expr)
 
-    case Statement.append(stmt, token) do
-      %{state: :complete} = statement ->
-        # peak next token to ensure there isnt a continuation
-        %{family: new_family} = Lexer.peak_token(rest)
+    if family in [:value, :operator] do
+      case Statement.append(stmt, token) do
+        %{state: :complete} = statement ->
+          # peak next token to ensure there isnt a continuation
+          %{family: new_family} = Lexer.peak_token(rest)
 
-        if new_family == family,
-          do: {:ok, statement, rest},
-          else: parse_statement(rest, statement)
+          if new_family == family,
+            do: {:ok, statement, rest},
+            else: parse_statement(rest, statement)
 
-      %{state: :error} = statement ->
-        {:error, statement, rest}
+        %{state: :error} = statement ->
+          {:error, statement, rest}
 
-      statement ->
-        parse_statement(rest, statement)
+        statement ->
+          parse_statement(rest, statement)
+      end
+    else
+      {:ok, stmt, expr}
     end
   end
 

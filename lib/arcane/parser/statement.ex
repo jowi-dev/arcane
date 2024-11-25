@@ -31,6 +31,16 @@ defmodule Arcane.Parser.Statement do
     %__MODULE__{}
   end
 
+  def to_tokens(%{tokens: tokens}) when length(tokens) >= 3 do
+    [val1, op, val2 | rest] = tokens
+
+    s_express(rest, [op, [val2, val1]])
+  end
+
+  defp s_express([], out), do: out 
+
+  def to_tokens(%{tokens: tokens}), do: Enum.reverse(tokens)
+
   defp invert(:value), do: :operator
   defp invert(:operator), do: :value
 
