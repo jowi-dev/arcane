@@ -44,7 +44,9 @@ defmodule Arcane.Parser.Token do
   def assign(token \\ %__MODULE__{}),
     do: %__MODULE__{type: :assign, term: "=", line: token.line, col: token.col, family: :operator}
 
-  def plus, do: %__MODULE__{type: :plus, term: "+", family: :operator}
+  def plus(token \\ %__MODULE__{}),
+    do: %__MODULE__{type: :plus, term: "+", family: :operator, line: token.line, col: token.col}
+
   def float(val), do: %__MODULE__{type: :float, term: String.to_float(val), family: :value}
 
   def int(num) when is_number(num), do: int(%__MODULE__{term: "#{num}"})

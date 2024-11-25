@@ -8,9 +8,6 @@ defmodule Arcane.Parser.Lexer do
   @doc "This is temporary until lexing and parsing is more feature complete"
   def pass_through(expr), do: expr
 
-  def append_statement(statement, token) do
-  end
-
   @spec next_token(String.t()) :: {Token.t(), String.t()}
   def next_token(expr) do
     {token, rest} = parse_token(expr, %Token{})
@@ -20,7 +17,7 @@ defmodule Arcane.Parser.Lexer do
 
   @spec peak_token(String.t()) :: Token.t()
   def peak_token(expr) do
-    token = parse_token(expr, %Token{})
+    {token, _} = parse_token(expr, %Token{})
 
     token
   end
