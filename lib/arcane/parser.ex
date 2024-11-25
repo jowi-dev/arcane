@@ -26,9 +26,11 @@ defmodule Arcane.Parser do
   """
   @spec parse(String.t(), Context.t()) :: {:ok, [[Token.t()]]} | {:error, String.t()}
   def parse(expr, ctx \\ %Context{}) do
-    case parse_statement(expr) do
+    result = parse_statement(expr)
+
+    case result do
       {:ok, statement, rest} when rest != "" ->
-        ctx = put_in(ctx, :statements, [statement | ctx.statements])
+        ctx = Map.put(ctx, :statements, [statement | ctx.statements])
         parse(rest, ctx)
 
       {:ok, statement, ""} ->
@@ -36,6 +38,7 @@ defmodule Arcane.Parser do
           ctx
           |> Map.put(:statements, [statement | ctx.statements])
           |> then(fn ctx -> Enum.map(ctx.statements, &Statement.to_tokens/1) end)
+          |> Enum.reverse()
 
         {:ok, tokens}
 
@@ -46,26 +49,32 @@ defmodule Arcane.Parser do
 
   @spec parse_statement(String.t(), Statement.t()) :: {:ok | :error, Statement.t(), String.t()}
   def parse_statement(expr, stmt \\ %Statement{}) do
-    {%{family: family} = token, rest} = Lexer.next_token(expr)
+    {%{family: family} = token, rest} =
+      Lexer.next_token(expr)
 
-    if family in [:value, :operator] do
-      case Statement.append(stmt, token) do
-        %{state: :complete} = statement ->
-          # peak next token to ensure there isnt a continuation
-          %{family: new_family} = Lexer.peak_token(rest)
+    cond do
+      family in [:value, :operator] ->
+        case Statement.append(stmt, token) do
+          %{state: :complete} = statement ->
+            # peak next token to ensure there isnt a continuation
+            %{family: new_family} = Lexer.peak_token(rest, expected: statement.expected)
 
-          if new_family == family,
-            do: {:ok, statement, rest},
-            else: parse_statement(rest, statement)
+            if new_family == family or token.type == :endline,
+              do: {:ok, statement, rest},
+              else: parse_statement(rest, statement)
 
-        %{state: :error} = statement ->
-          {:error, statement, rest}
+          %{state: :error} = statement ->
+            {:error, statement, rest}
 
-        statement ->
-          parse_statement(rest, statement)
-      end
-    else
-      {:ok, stmt, expr}
+          statement ->
+            parse_statement(rest, statement)
+        end
+
+      token.type == :file_end ->
+        {:ok, stmt, ""}
+
+      true ->
+        {:ok, stmt, rest}
     end
   end
 

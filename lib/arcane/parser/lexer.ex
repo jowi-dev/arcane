@@ -16,10 +16,16 @@ defmodule Arcane.Parser.Lexer do
   end
 
   @spec peak_token(String.t()) :: Token.t()
-  def peak_token(expr) do
-    {token, _} = parse_token(expr, %Token{})
+  def peak_token(expr, opts \\ []) do
+    expected = Keyword.get(opts, :expected, :operator)
+    eat_newline? = Keyword.get(opts, :eat_newline?, true)
+    {token, rest} = parse_token(expr, %Token{})
 
-    token
+    case {token, expected, eat_newline?} do
+      {%{type: :newline}, _, true} -> peak_token(rest, opts)
+      {%{family: family} = token, family, _} -> token
+      {_, _, _} -> Token.endline()
+    end
   end
 
   defp parse_token(<<c, rest::binary>> = str, %Token{term: term} = token)
@@ -92,6 +98,7 @@ defmodule Arcane.Parser.Lexer do
   defp parse_token(<<?", rest::binary>>, %Token{term: nil, type: :unknown} = token),
     do: parse_token(rest, %{token | type: :string, term: "\""})
 
+  defp parse_token(<<?\n, rest::binary>>, token), do: {Token.newline(token), rest}
   # eat whitespace
   defp parse_token(<<_c, rest::binary>>, %Token{term: _, type: :unknown} = token),
     do: parse_token(rest, token)

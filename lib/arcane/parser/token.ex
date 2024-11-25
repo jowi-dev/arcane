@@ -36,7 +36,12 @@ defmodule Arcane.Parser.Token do
   # Untested - unsure if I need these yet
   def illegal(val), do: %__MODULE__{type: :illegal, term: val}
   def file_end, do: %__MODULE__{type: :file_end, term: nil}
-  def newline, do: %__MODULE__{type: :newline, term: nil}
+
+  def newline(token \\ %__MODULE__{}),
+    do: %__MODULE__{type: :newline, term: nil, col: token.col, line: token.line, family: :meta}
+
+  def endline(),
+    do: %__MODULE__{type: :endline, term: nil, family: :meta}
 
   # Lexer - Tested
   def comma, do: %__MODULE__{type: :comma, term: ",", family: :operator}
