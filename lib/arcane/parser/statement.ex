@@ -31,9 +31,17 @@ defmodule Arcane.Parser.Statement do
     %__MODULE__{}
   end
 
+  defp invert(:value), do: :operator
+  defp invert(:operator), do: :value
+
   @spec append(__MODULE__.t(), Arcane.Token.t()) :: __MODULE__.t()
-  def append(%{expected: family} = statement, %{family: family} = token) do
-    statement = Map.put(statement, :tokens, [token | statement.tokens])
+  def append(%{expected: family, state: state} = statement, %{family: family} = token)
+      when state != :init do
+    statement =
+      Map.merge(statement, %{
+        tokens: [token | statement.tokens],
+        expected: invert(statement.expected)
+      })
 
     if complete?(statement) do
       Map.put(statement, :state, :complete)
@@ -45,6 +53,7 @@ defmodule Arcane.Parser.Statement do
   def append(%{state: :init} = statement, %{family: :value} = token) do
     Map.merge(statement, %{
       tokens: [token],
+      expected: invert(statement.expected),
       state: :parse
     })
   end

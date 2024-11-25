@@ -3,7 +3,7 @@ defmodule Arcane.Parser.Token do
             col: 0,
             term: nil,
             type: :unknown,
-            family: :unknown
+            family: :meta
 
   @type t :: %__MODULE__{
           line: integer(),
@@ -39,11 +39,13 @@ defmodule Arcane.Parser.Token do
   def newline, do: %__MODULE__{type: :newline, term: nil}
 
   # Lexer - Tested
-  def comma, do: %__MODULE__{type: :comma, term: ","}
-  def assign(token \\ %__MODULE__{})
-  def assign(token), do: %__MODULE__{type: :assign, term: "=", line: token.line, col: token.col}
-  def plus, do: %__MODULE__{type: :plus, term: "+"}
-  def float(val), do: %__MODULE__{type: :float, term: String.to_float(val)}
+  def comma, do: %__MODULE__{type: :comma, term: ",", family: :operator}
+
+  def assign(token \\ %__MODULE__{}),
+    do: %__MODULE__{type: :assign, term: "=", line: token.line, col: token.col, family: :operator}
+
+  def plus, do: %__MODULE__{type: :plus, term: "+", family: :operator}
+  def float(val), do: %__MODULE__{type: :float, term: String.to_float(val), family: :value}
 
   def int(num) when is_number(num), do: int(%__MODULE__{term: "#{num}"})
 
@@ -52,19 +54,29 @@ defmodule Arcane.Parser.Token do
       type: :int,
       term: String.to_integer(token.term),
       line: token.line,
-      col: token.col
+      col: token.col,
+      family: :value
     }
 
   def ident(ident) when is_binary(ident),
-    do: %__MODULE__{type: :ident, term: ident, line: 0, col: 0}
+    do: %__MODULE__{type: :ident, term: ident, line: 0, col: 0, family: :value}
 
   def ident(token),
-    do: %__MODULE__{type: :ident, term: token.term, line: token.line, col: token.col}
+    do: %__MODULE__{
+      type: :ident,
+      term: token.term,
+      line: token.line,
+      col: token.col,
+      family: :value
+    }
 
-  def expr_open, do: %__MODULE__{type: :expr_open, term: "=>"}
-  def expr_close, do: %__MODULE__{type: :expr_close, term: "end"}
-  def string(val), do: %__MODULE__{type: :string, term: String.replace(val, "\"", "")}
-  def paren_l, do: %__MODULE__{type: :paren_open, term: "("}
-  def paren_r, do: %__MODULE__{type: :paren_close, term: ")"}
-  def declare, do: %__MODULE__{type: :declare, term: "::"}
+  def expr_open, do: %__MODULE__{type: :expr_open, term: "=>", family: :operator}
+  def expr_close, do: %__MODULE__{type: :expr_close, term: "end", family: :operator}
+
+  def string(val),
+    do: %__MODULE__{type: :string, term: String.replace(val, "\"", ""), family: :value}
+
+  def paren_l, do: %__MODULE__{type: :paren_open, term: "(", family: :operator}
+  def paren_r, do: %__MODULE__{type: :paren_close, term: ")", family: :operator}
+  def declare, do: %__MODULE__{type: :declare, term: "::", family: :operator}
 end
