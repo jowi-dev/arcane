@@ -1,6 +1,7 @@
 defmodule Arcane.Parser.DeclarationTest do
   use ExUnit.Case
   alias Arcane.Parser.Declaration
+  alias Arcane.Parser.Statement
   alias Arcane.Parser.Token
 
   describe "next_declaration/1 - Functions" do
@@ -15,13 +16,15 @@ defmodule Arcane.Parser.DeclarationTest do
     num2 = Token.ident("num2")
     plus = Token.plus()
     assert [^num1, ^num2] = decl.args
-    assert [%Statement{tokens: [^plus, [^num1, ^num2]]}] = decl.statements
     assert :function == decl.type
+    assert [%Statement{tokens: [^plus, [^num1, ^num2]]}] = decl.statements
     end
 
   end
 
-  describe "next_declaration/1 - Structs"
-  describe "next_declaration/1 - Tests"
+  describe "next_declaration/1 - Structs" do
+  end
+  describe "next_declaration/1 - Tests" do
+  end
   
 end

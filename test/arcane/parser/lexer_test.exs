@@ -32,6 +32,12 @@ defmodule Arcane.Parser.LexerTest do
       assert rest == ""
       assert %Token{term: "hello", type: :string} = token
     end
+
+    test "gets the next declaration" do
+      {token, _rest} = Lexer.next_token(":: func()")
+
+      assert %Token{term: "::", type: :declare} = token
+    end
   end
 
   describe "peak_token/1" do

@@ -52,8 +52,14 @@ defmodule Arcane.Parser.Lexer do
       # =>
       <<?=>> == term and c == ?> ->
         token = %{token | term: <<term::binary, (<<c>>)>>}
-        token = identify_token(token)
+        token = Token.expr_open(token)
         {token, rest}
+
+      <<?:>> == term and c == ?: ->
+        token = %{token | term: <<term::binary, (<<c>>)>>}
+        token = Token.declare(token)
+        {token, rest}
+
 
       # =
       <<?=>> == term ->
