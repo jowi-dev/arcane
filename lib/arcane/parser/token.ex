@@ -77,7 +77,15 @@ defmodule Arcane.Parser.Token do
       family: :value
     }
 
-  def expr_open(token), do: %__MODULE__{type: :expr_open, term: "=>", family: :operator, line: token.line, col: token.col}
+  def expr_open(token),
+    do: %__MODULE__{
+      type: :expr_open,
+      term: "=>",
+      family: :operator,
+      line: token.line,
+      col: token.col
+    }
+
   def expr_close, do: %__MODULE__{type: :expr_close, term: "end", family: :operator}
 
   def string(val),
@@ -85,5 +93,13 @@ defmodule Arcane.Parser.Token do
 
   def paren_l, do: %__MODULE__{type: :paren_open, term: "(", family: :operator}
   def paren_r, do: %__MODULE__{type: :paren_close, term: ")", family: :operator}
-  def declare(token), do: %__MODULE__{type: :declare, term: "::", family: :operator, line: token.line, col: token.col}
+
+  def declare(token),
+    do: %__MODULE__{
+      type: :declare,
+      term: "::",
+      family: :operator,
+      line: token.line,
+      col: token.col
+    }
 end

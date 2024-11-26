@@ -60,7 +60,6 @@ defmodule Arcane.Parser.Lexer do
         token = Token.declare(token)
         {token, rest}
 
-
       # =
       <<?=>> == term ->
         token = Token.assign(token)

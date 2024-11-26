@@ -44,7 +44,6 @@ UserStore.Users :: module(%{
     # variables must be initialized! this will result in a compiler error
     input -> UserLand.KeyboardInput.t()
 
-    # TODO - do we want labeled jump loops or more traditional looping?
     renderLoop :: loop (
         until: input.keyDown == "C" and input.modifier == "Ctrl",
         max: :infinity
@@ -60,7 +59,7 @@ UserStore.Users :: module(%{
 
     # Rather than having loop ceremony, we use jump statements
     # jumpEqual also available
-    if not (input.keydown == "C" and input.modifier == "Ctrl") do
+    if not (input.keydown == "C" and input.modifier == "Ctrl") then
         jump renderStart
     end
 
@@ -107,16 +106,22 @@ UserStore.Users :: module(%{
         |> User.changes(values)
         |> Repo.update()
 
-    match result =>
-      {:ok, user} :: {:ok, user}
-      {:error, _} :: {:error, "Failed to update user"}
+    switch =>
+        result@{:ok, user} ? ({:ok, user}),
+        result@{:error, _} ? ({:error, "Failed to update"})
     end
   end
 
-  checkIfBob :: pfunc(user -> User.t()) -> {:ok, true} | {:ok, false} => 
-   match user =>
-     %User{name: "Bob"} :: {:ok, true}
-     _user :: {:ok, false}
+  # We have options 
+  @priv checkIfBob(User.t(), boolean()) -> {:ok, true} | {:ok, false}
+  checkIfBob :: (user, false) => (user.email == "bob@bob.com")
+  checkIfBob :: (%User{name: "Bob"}, true) => (true)
+  checkIfBob :: (_,_) => (false)
+
+  checkIfBob :: (user, useName?) => 
+   switch
+     user@%User{name: "Bob"} ? {:ok, true}
+     _user ? {:ok, false}
    end
   end 
 end

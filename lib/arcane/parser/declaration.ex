@@ -11,21 +11,17 @@ defmodule Arcane.Parser.Declaration do
   alias Arcane.Parser.Lexer
   alias Arcane.Parser.Token
 
-
   @type t :: %{
-    name: String.t(),
-    type: :unknown | :function | :pfunction | :struct,
-    args: list(Arcane.Parser.Token.t()),
-    statements: list(Arcane.Parser.Statement.t())
+          name: String.t(),
+          type: :unknown | :function | :pfunction | :struct,
+          args: list(Arcane.Parser.Token.t()),
+          statements: list(Arcane.Parser.Statement.t())
+        }
 
-  }
-
-  defstruct [
-    name: "",
-    type: :unknown,
-    args: [],
-    statements: [],
-  ]
+  defstruct name: "",
+            type: :unknown,
+            args: [],
+            statements: []
 
   @doc """
   Given an unparsed expression, find the next declaration and return that along
@@ -43,10 +39,12 @@ defmodule Arcane.Parser.Declaration do
   defp get_declaration(<<?\s, rest::binary>>, token), do: get_declaration(rest, token)
   defp get_declaration(<<?\t, rest::binary>>, token), do: get_declaration(rest, token)
   defp get_declaration(<<?\n, rest::binary>>, token), do: get_declaration(rest, token)
+
   defp get_declaration(<<"func", rest::binary>>, token) do
-    IO.puts"WIN"
+    IO.puts("WIN")
     args = get_args(rest)
     statements = get_statements(rest)
+
     %__MODULE__{
       name: token.term,
       type: :function,
@@ -73,8 +71,7 @@ defmodule Arcane.Parser.Declaration do
     arg_str = declaration_line(rest)
 
     # remove the rest of the args from the expression
-    rest = String.replace(rest, arg_str, "") 
-
+    rest = String.replace(rest, arg_str, "")
   end
 
   defp declaration_line(expr) do
