@@ -9,14 +9,17 @@ defmodule Arcane.Parser.ExpressionTest do
     one = Token.ident("one")
     two = Token.ident("two")
     plus = Token.plus()
-    
-    assert {:ok, %Expression{
-      type: "func",
-      args: [^one, ^two],
-      body: [%Statement{} = stmt]
-    }, ""} = Expression.parse_expression("""
-      func(one, two) => one + two
-      """)
+
+    assert {:ok,
+            %Expression{
+              type: "func",
+              args: [^one, ^two],
+              body: [%Statement{} = stmt]
+            },
+            ""} =
+             Expression.parse_expression("""
+             func(one, two) => one + two
+             """)
 
     assert [^plus, [^one, ^two]] = Statement.to_tokens(stmt)
   end

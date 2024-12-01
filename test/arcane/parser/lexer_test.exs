@@ -48,6 +48,7 @@ defmodule Arcane.Parser.LexerTest do
       {token, _rest} = Lexer.next_token(")")
       assert %Token{term: ")", type: :paren_close} = token
     end
+
     test "gets the next comma" do
       {token, _rest} = Lexer.next_token(",num")
       assert %Token{term: ",", type: :comma} = token

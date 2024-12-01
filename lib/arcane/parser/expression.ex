@@ -28,11 +28,11 @@ defmodule Arcane.Parser.Expression do
         }
 
   def parse_expression(input, expr \\ %__MODULE__{}) do
-    {rest, expression} = 
-    {input, expr}
-    |> identify()
-    |> parse_args()
-    |> parse_body()
+    {rest, expression} =
+      {input, expr}
+      |> identify()
+      |> parse_args()
+      |> parse_body()
 
     # TODO - don't return ok if not ok
     {:ok, expression, rest}
@@ -40,48 +40,49 @@ defmodule Arcane.Parser.Expression do
 
   defp identify({input, ctx}) do
     {token, rest} = Lexer.next_token(input)
+
     case token do
       %Token{type: :paren_open} ->
         # Leave the paren open in place for consistent arg parsing
         {input, Map.put(ctx, :type, :pfunc)}
 
-        # TODO - this needs safety - currently accepts any identifier as valid
-      %Token{type: :ident, term: term} -> 
+      # TODO - this needs safety - currently accepts any identifier as valid
+      %Token{type: :ident, term: term} ->
         {rest, Map.put(ctx, :type, term)}
-    
     end
   end
 
   defp parse_args({input, ctx}) do
     {token, rest} = Lexer.next_token(input)
-    IO.inspect(token)
+
     case token do
       %Token{type: :paren_close} ->
         {rest, Map.put(ctx, :args, Enum.reverse(ctx.args))}
+
       %Token{type: type} when type in [:paren_open, :comma] ->
         parse_args({rest, ctx})
+
       %Token{type: :ident} = token ->
         ctx = Map.put(ctx, :args, [token | ctx.args])
         parse_args({rest, ctx})
-
     end
   end
 
   defp parse_body({input, ctx}) do
     {token, rest} = Lexer.next_token(input)
-    IO.inspect(token)
-    IO.inspect(rest)
+
     case token do
-      %Token{type: :expr_open} -> 
+      %Token{type: :expr_open} ->
         parse_body({rest, ctx})
-      %Token{type: type} when type in [:expr_close, :file_end] -> 
+
+      %Token{type: type} when type in [:expr_close, :file_end] ->
         {rest, ctx}
-      _token -> 
+
+      _token ->
         {:ok, stmt, rest} = Statement.parse_statement(input)
         ctx = Map.put(ctx, :body, [stmt | ctx.body])
 
         parse_body({rest, ctx})
     end
-
   end
 end
