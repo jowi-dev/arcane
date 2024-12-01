@@ -38,6 +38,20 @@ defmodule Arcane.Parser.LexerTest do
 
       assert %Token{term: "::", type: :declare} = token
     end
+
+    test "gets the next open parenthesis" do
+      {token, _rest} = Lexer.next_token("(num")
+      assert %Token{term: "(", type: :paren_open} = token
+    end
+
+    test "gets the next close parenthesis" do
+      {token, _rest} = Lexer.next_token(")")
+      assert %Token{term: ")", type: :paren_close} = token
+    end
+    test "gets the next comma" do
+      {token, _rest} = Lexer.next_token(",num")
+      assert %Token{term: ",", type: :comma} = token
+    end
   end
 
   describe "peak_token/1" do

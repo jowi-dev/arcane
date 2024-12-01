@@ -15,12 +15,12 @@ defmodule Arcane.Parser.Declaration do
   @type t :: %{
           name: String.t(),
           type: :unknown | :function | :pfunction | :struct | :module | :value,
-          expression: Expression.t()
+          expressions: list(Expression.t())
         }
 
   defstruct name: "",
             type: :unknown,
-            expression: nil
+            expressions: []
 
   @doc """
   Given an unparsed expression, find the next declaration and return that along
@@ -41,13 +41,13 @@ defmodule Arcane.Parser.Declaration do
 
   defp get_declaration(<<"func", rest::binary>>, token) do
     IO.puts("WIN")
-    args = get_args(rest)
-    statements = get_statements(rest)
+    #    args = get_args(rest)
+    #    statements = get_statements(rest)
 
     %__MODULE__{
       name: token.term,
       type: :function,
-      expression: statements
+      expressions: []
     }
   end
 

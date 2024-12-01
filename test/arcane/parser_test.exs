@@ -4,10 +4,10 @@ defmodule Arcane.ParserTest do
   alias Arcane.Parser
 
   test "parses an expression" do
-
-    assert {:ok, true} = Parser.parse("""
-      func(1, 2) => 1 + 2
-      """)
+    assert {:ok, true} =
+             Parser.parse("""
+             func(1, 2) => 1 + 2
+             """)
   end
 
   test "parses an add statement" do

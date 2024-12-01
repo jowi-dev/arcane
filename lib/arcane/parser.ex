@@ -111,7 +111,9 @@ defmodule Arcane.Parser do
     end
   end
 
-  defp append_statement(nil, current, []), do: {Statement.parse_statement(Enum.reverse(current)), []}
+  defp append_statement(nil, current, []),
+    do: {Statement.parse_statement(Enum.reverse(current)), []}
+
   defp append_statement(nil, [], []), do: []
   defp append_statement(curr, [], next), do: append_statement(hd(next), [curr], tl(next))
 end
