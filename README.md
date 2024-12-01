@@ -31,15 +31,17 @@ Arcane.Users :: module (
         _args => Error("Invalid Args")
     )
 
-    getUsers(String, String, __MODULE__) -> __MODULE__ :: (name, email, user) => {
+    getUsers(String) -> __MODULE__ :: (name) => {
     //Using creates a block which automatically cleans after scope close
         using
             arena <- Arena.new(1024 * 1024),
             repo <- Repo.connect(),
             file <- File.write("data.txt") => {
-        
+
+            // Arenas are part of the standard library to help create predictable performance
+            twenty_four <- Arena.alloc(24, arena)
             // Type declaration after statement
-            query = String.new("select * from users", arena) -> String
+            query = String.new("select * from users where name = '#{name}'", arena) -> String
 
             // implicit type casting
             result <- Repo.query(query, repo, arena)
