@@ -1,6 +1,14 @@
 defmodule Arcane.ParserTest do
   use ExUnit.Case
   alias Arcane.Parser.Token
+  alias Arcane.Parser
+
+  test "parses an expression" do
+
+    assert {:ok, true} = Parser.parse("""
+      func(1, 2) => 1 + 2
+      """)
+  end
 
   test "parses an add statement" do
     plus = Token.plus()

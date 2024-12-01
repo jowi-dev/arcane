@@ -8,20 +8,19 @@ defmodule Arcane.Parser.Declaration do
   - TODO - Test Definitions
   """
 
+  alias Arcane.Parser.Expression
   alias Arcane.Parser.Lexer
   alias Arcane.Parser.Token
 
   @type t :: %{
           name: String.t(),
-          type: :unknown | :function | :pfunction | :struct,
-          args: list(Arcane.Parser.Token.t()),
-          statements: list(Arcane.Parser.Statement.t())
+          type: :unknown | :function | :pfunction | :struct | :module | :value,
+          expression: Expression.t()
         }
 
   defstruct name: "",
             type: :unknown,
-            args: [],
-            statements: []
+            expression: nil
 
   @doc """
   Given an unparsed expression, find the next declaration and return that along
@@ -48,8 +47,7 @@ defmodule Arcane.Parser.Declaration do
     %__MODULE__{
       name: token.term,
       type: :function,
-      args: args,
-      statements: statements
+      expression: statements
     }
   end
 

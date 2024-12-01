@@ -15,6 +15,9 @@ defmodule Arcane.Parser.Statement do
     |> Enum.filter(&is_even/1)
     |> List.first()
   """
+
+  alias Arcane.Parser.Lexer
+
   defstruct state: :init,
             tokens: [],
             expected: :value,
@@ -29,6 +32,37 @@ defmodule Arcane.Parser.Statement do
 
   def new() do
     %__MODULE__{}
+  end
+
+  @spec parse_statement(String.t(), __MODULE__.t()) :: {:ok | :error, __MODULE__.t(), String.t()}
+  def parse_statement(expr, stmt \\ %__MODULE__{}) do
+    {%{family: family} = token, rest} =
+      Lexer.next_token(expr)
+
+    cond do
+      family in [:value, :operator] ->
+        case append(stmt, token) do
+          %{state: :complete} = statement ->
+            # peak next token to ensure there isnt a continuation
+            %{family: new_family} = Lexer.peak_token(rest, expected: statement.expected)
+
+            if new_family == family or token.type == :endline,
+              do: {:ok, statement, rest},
+              else: parse_statement(rest, statement)
+
+          %{state: :error} = statement ->
+            {:error, statement, rest}
+
+          statement ->
+            parse_statement(rest, statement)
+        end
+
+      token.type == :file_end ->
+        {:ok, stmt, ""}
+
+      true ->
+        {:ok, stmt, rest}
+    end
   end
 
   def to_tokens(%{tokens: tokens}) when length(tokens) >= 3 do

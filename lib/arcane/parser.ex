@@ -26,7 +26,7 @@ defmodule Arcane.Parser do
   """
   @spec parse(String.t(), Context.t()) :: {:ok, [[Token.t()]]} | {:error, String.t()}
   def parse(expr, ctx \\ %Context{}) do
-    result = parse_statement(expr)
+    result = Statement.parse_statement(expr)
 
     case result do
       {:ok, statement, rest} when rest != "" ->
@@ -44,37 +44,6 @@ defmodule Arcane.Parser do
 
       {:error, statement, _rest} ->
         {:error, statement.message}
-    end
-  end
-
-  @spec parse_statement(String.t(), Statement.t()) :: {:ok | :error, Statement.t(), String.t()}
-  def parse_statement(expr, stmt \\ %Statement{}) do
-    {%{family: family} = token, rest} =
-      Lexer.next_token(expr)
-
-    cond do
-      family in [:value, :operator] ->
-        case Statement.append(stmt, token) do
-          %{state: :complete} = statement ->
-            # peak next token to ensure there isnt a continuation
-            %{family: new_family} = Lexer.peak_token(rest, expected: statement.expected)
-
-            if new_family == family or token.type == :endline,
-              do: {:ok, statement, rest},
-              else: parse_statement(rest, statement)
-
-          %{state: :error} = statement ->
-            {:error, statement, rest}
-
-          statement ->
-            parse_statement(rest, statement)
-        end
-
-      token.type == :file_end ->
-        {:ok, stmt, ""}
-
-      true ->
-        {:ok, stmt, rest}
     end
   end
 
@@ -130,7 +99,7 @@ defmodule Arcane.Parser do
         statement =
           [curr | stmt]
           |> Enum.reverse()
-          |> parse_statement()
+          |> Statement.parse_statement()
 
         {statement, next}
 
@@ -142,7 +111,7 @@ defmodule Arcane.Parser do
     end
   end
 
-  defp append_statement(nil, current, []), do: {parse_statement(Enum.reverse(current)), []}
+  defp append_statement(nil, current, []), do: {Statement.parse_statement(Enum.reverse(current)), []}
   defp append_statement(nil, [], []), do: []
   defp append_statement(curr, [], next), do: append_statement(hd(next), [curr], tl(next))
 end
