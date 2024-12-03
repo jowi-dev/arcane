@@ -86,7 +86,8 @@ defmodule Arcane.Parser.Token do
       col: token.col
     }
 
-  def expr_close, do: %__MODULE__{type: :expr_close, term: "end", family: :operator}
+  def body_open, do: %__MODULE__{type: :expr_open, term: "{", family: :operator}
+  def body_close, do: %__MODULE__{type: :expr_close, term: "}", family: :operator}
 
   def string(val),
     do: %__MODULE__{type: :string, term: String.replace(val, "\"", ""), family: :value}

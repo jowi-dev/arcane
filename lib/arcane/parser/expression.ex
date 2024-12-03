@@ -72,17 +72,22 @@ defmodule Arcane.Parser.Expression do
     {token, rest} = Lexer.next_token(input)
 
     case token do
-      %Token{type: :expr_open} ->
+      %Token{type: type} when type in [:expr_open, :body_open] ->
         parse_body({rest, ctx})
 
-      %Token{type: type} when type in [:expr_close, :file_end] ->
+      %Token{type: type} when type in [:body_close, :file_end] ->
         {rest, ctx}
 
       _token ->
         {:ok, stmt, rest} = Statement.parse_statement(input)
-        ctx = Map.put(ctx, :body, [stmt | ctx.body])
 
-        parse_body({rest, ctx})
+        if stmt.tokens == [] do
+          parse_body({rest, ctx})
+        else
+          ctx = Map.put(ctx, :body, [stmt | ctx.body])
+
+          parse_body({rest, ctx})
+        end
     end
   end
 end
