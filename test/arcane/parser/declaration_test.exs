@@ -4,7 +4,7 @@ defmodule Arcane.Parser.DeclarationTest do
   alias Arcane.Parser.Expression
   alias Arcane.Parser.Token
 
-  describe "next_declaration/1 - Functions" do
+  describe "parse/1 - Functions" do
     test "parses a function definition" do
       assert {:ok, decl, ""} =
                Declaration.parse("""
@@ -20,9 +20,9 @@ defmodule Arcane.Parser.DeclarationTest do
     end
   end
 
-  describe "next_declaration/1 - Structs" do
+  describe "parse/1 - Structs" do
   end
 
-  describe "next_declaration/1 - Tests" do
+  describe "parse/1 - Tests" do
   end
 end

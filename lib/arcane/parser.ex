@@ -27,7 +27,7 @@ defmodule Arcane.Parser do
   """
   @spec parse(String.t(), Context.t()) :: {:ok, [[Token.t()]]} | {:error, String.t()}
   def parse(expr, ctx \\ %Context{}) do
-    #result = Statement.parse_statement(expr)
+    # result = Statement.parse_statement(expr)
     result = Declaration.parse(expr)
 
     case result do

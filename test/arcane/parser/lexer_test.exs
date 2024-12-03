@@ -12,7 +12,7 @@ defmodule Arcane.Parser.LexerTest do
       assert %Token{term: "a", type: :ident} = token
     end
 
-    test "Identifiers can contain numbers" do 
+    test "Identifiers can contain numbers" do
       {token, _rest} = Lexer.next_token("num1")
       assert %Token{term: "num1", type: :ident} = token
     end

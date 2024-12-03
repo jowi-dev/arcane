@@ -38,13 +38,13 @@ defmodule Arcane.Parser.Declaration do
         type: expr.type,
         expressions: [expr]
       }
+
       {:ok, declaration, rest}
     else
-      {error, rest} -> 
+      {error, rest} ->
         IO.inspect(error)
         {nil, rest}
     end
-
   end
 
   defp get_declaration(<<?\s, rest::binary>>, token), do: get_declaration(rest, token)
