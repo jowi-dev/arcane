@@ -1,24 +1,22 @@
 defmodule Arcane.Parser.DeclarationTest do
   use ExUnit.Case
   alias Arcane.Parser.Declaration
-  alias Arcane.Parser.Statement
+  alias Arcane.Parser.Expression
   alias Arcane.Parser.Token
 
   describe "next_declaration/1 - Functions" do
     test "parses a function definition" do
-      assert {:ok, decl} =
-               Declaration.next_declaration("""
-               myFunc :: func(num1, num2) =>
-                 num1 + num2
+      assert {:ok, decl, ""} =
+               Declaration.parse("""
+               myFunc :: func(num, numtwo) =>
+                 num + numtwo
                end
                """)
 
-      num1 = Token.ident("num1")
-      num2 = Token.ident("num2")
+      num1 = Token.ident("num")
+      num2 = Token.ident("numtwo")
       plus = Token.plus()
-      assert [^num1, ^num2] = decl.args
-      assert :function == decl.type
-      assert [%Statement{tokens: [^plus, [^num1, ^num2]]}] = decl.statements
+      assert [%Expression{type: "func", args: [^num1, ^num2]}] = decl.expressions
     end
   end
 

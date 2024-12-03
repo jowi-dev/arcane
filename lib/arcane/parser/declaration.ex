@@ -26,13 +26,25 @@ defmodule Arcane.Parser.Declaration do
   Given an unparsed expression, find the next declaration and return that along
   with the remainder of the expression
   """
-  @spec next_declaration(String.t()) :: {__MODULE__.t(), String.t()}
-  def next_declaration(expr) do
+  @spec parse(String.t()) :: {__MODULE__.t() | nil, String.t()}
+  def parse(expr) do
+    # TODO - typing will go here
+    # TODO - operator overload will need multiple expressions returned
     with {%Token{type: :ident} = token, rest} <- Lexer.next_token(expr),
          {%Token{type: :declare}, rest} <- Lexer.next_token(rest),
-         %__MODULE__{} = decl <- get_declaration(rest, token) do
-      {:ok, decl}
+         {:ok, %Expression{} = expr, rest} <- Expression.parse_expression(rest) do
+      declaration = %__MODULE__{
+        name: token.term,
+        type: expr.type,
+        expressions: [expr]
+      }
+      {:ok, declaration, rest}
+    else
+      {error, rest} -> 
+        IO.inspect(error)
+        {nil, rest}
     end
+
   end
 
   defp get_declaration(<<?\s, rest::binary>>, token), do: get_declaration(rest, token)

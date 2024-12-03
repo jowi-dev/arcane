@@ -7,6 +7,7 @@ defmodule Arcane.Parser do
   alias Arcane.Parser.Context
   alias Arcane.Parser.Lexer
   alias Arcane.Parser.Statement
+  alias Arcane.Parser.Declaration
   alias Arcane.Parser.Token
 
   @operators [:plus, :assign]
@@ -26,7 +27,8 @@ defmodule Arcane.Parser do
   """
   @spec parse(String.t(), Context.t()) :: {:ok, [[Token.t()]]} | {:error, String.t()}
   def parse(expr, ctx \\ %Context{}) do
-    result = Statement.parse_statement(expr)
+    #result = Statement.parse_statement(expr)
+    result = Declaration.parse(expr)
 
     case result do
       {:ok, statement, rest} when rest != "" ->

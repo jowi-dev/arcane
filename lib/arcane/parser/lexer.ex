@@ -46,7 +46,7 @@ defmodule Arcane.Parser.Lexer do
         append_recurse.()
 
       # variable names
-      identifier?(term) and identifier?(<<c>>) ->
+      identifier?(term) and (identifier?(<<c>>) or numeric?(<<c>>)) ->
         append_recurse.()
 
       # =>
