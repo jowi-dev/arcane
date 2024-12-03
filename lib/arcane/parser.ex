@@ -27,26 +27,7 @@ defmodule Arcane.Parser do
   """
   @spec parse(String.t(), Context.t()) :: {:ok, [[Token.t()]]} | {:error, String.t()}
   def parse(expr, ctx \\ %Context{}) do
-    # result = Statement.parse_statement(expr)
     result = Declaration.parse(expr)
-
-    case result do
-      {:ok, statement, rest} when rest != "" ->
-        ctx = Map.put(ctx, :statements, [statement | ctx.statements])
-        parse(rest, ctx)
-
-      {:ok, statement, ""} ->
-        tokens =
-          ctx
-          |> Map.put(:statements, [statement | ctx.statements])
-          |> then(fn ctx -> Enum.map(ctx.statements, &Statement.to_tokens/1) end)
-          |> Enum.reverse()
-
-        {:ok, tokens}
-
-      {:error, statement, _rest} ->
-        {:error, statement.message}
-    end
   end
 
   @doc """

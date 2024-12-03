@@ -8,9 +8,9 @@ defmodule Arcane.Parser.DeclarationTest do
     test "parses a function definition" do
       assert {:ok, decl, ""} =
                Declaration.parse("""
-               myFunc :: func(num, numtwo) =>
+               myFunc :: func(num, numtwo) => {
                  num + numtwo
-               end
+               }
                """)
 
       num1 = Token.ident("num")
