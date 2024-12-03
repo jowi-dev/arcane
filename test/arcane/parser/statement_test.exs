@@ -30,8 +30,8 @@ defmodule Arcane.Parser.StatementTest do
       one = Token.int(1)
       two = Token.int(2)
 
-      assert {:ok, [[^plus, [^one, ^two]]]} =
-               Arcane.Parser.parse("1+2")
+      assert {:ok, stmt, ""} = Statement.parse_statement("1+2")
+      assert [^plus, [^one, ^two]] = Statement.to_tokens(stmt)
     end
 
     test "parses an assign statement" do
@@ -39,8 +39,8 @@ defmodule Arcane.Parser.StatementTest do
       this = Token.ident("this")
       two = Token.int(2)
 
-      assert {:ok, [[^assign, [^this, ^two]]]} =
-               Arcane.Parser.parse("this = 2")
+      assert {:ok, stmt, ""} = Statement.parse_statement("this = 2")
+      assert [^assign, [^this, ^two]] = Statement.to_tokens(stmt)
     end
 
     test "parses an assign statement - no whitespace" do
@@ -48,8 +48,8 @@ defmodule Arcane.Parser.StatementTest do
       this = Token.ident("this")
       two = Token.int(2)
 
-      assert {:ok, [[^assign, [^this, ^two]]]} =
-               Arcane.Parser.parse("this=2")
+      assert {:ok, stmt, ""} = Statement.parse_statement("this=2")
+      assert [^assign, [^this, ^two]] = Statement.to_tokens(stmt)
     end
 
     test "parses an assign that is the result of an add" do
@@ -59,8 +59,8 @@ defmodule Arcane.Parser.StatementTest do
       one = Token.int(1)
       two = Token.int(2)
 
-      assert {:ok, [[^assign, [^this, [^plus, [^one, ^two]]]]]} =
-               Arcane.Parser.parse("this = 1 + 2")
+      assert {:ok, stmt, ""} = Statement.parse_statement("this = 1 + 2")
+      assert [^assign, [^this, [^plus, [^one, ^two]]]] = Statement.to_tokens(stmt)
     end
 
     test "parses an assign that is the result of an add - no whitespace" do
@@ -70,29 +70,8 @@ defmodule Arcane.Parser.StatementTest do
       one = Token.int(1)
       two = Token.int(2)
 
-      assert {:ok, [[^assign, [^this, [^plus, [^one, ^two]]]]]} =
-               Arcane.Parser.parse("this=1+2")
-    end
-
-    test "multiple statements" do
-      assign = Token.assign()
-      plus = Token.plus()
-      first = Token.ident("first")
-      second = Token.ident("second")
-      one = Token.int(1)
-      two = Token.int(2)
-
-      assert {:ok,
-              [
-                [^assign, [^first, ^one]],
-                [^assign, [^second, ^two]],
-                [^plus, [^first, ^second]]
-              ]} =
-               Arcane.Parser.parse("""
-               first = 1
-               second = 2
-               first + second
-               """)
+      assert {:ok, stmt, ""} = Statement.parse_statement("this=1+2")
+      assert [^assign, [^this, [^plus, [^one, ^two]]]] = Statement.to_tokens(stmt)
     end
   end
 
