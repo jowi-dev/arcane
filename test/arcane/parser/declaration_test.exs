@@ -15,8 +15,8 @@ defmodule Arcane.Parser.DeclarationTest do
 
       num1 = Token.ident("num")
       num2 = Token.ident("numtwo")
-      plus = Token.plus()
       assert [%Expression{type: "func", args: [^num1, ^num2]}] = decl.expressions
+      assert decl.type == "func"
     end
   end
 
