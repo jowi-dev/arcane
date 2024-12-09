@@ -41,8 +41,7 @@ defmodule Arcane.Parser.Declaration do
 
       {:ok, declaration, rest}
     else
-      {error, rest} ->
-        IO.inspect(error)
+      {_error, rest} ->
         {nil, rest}
     end
   end

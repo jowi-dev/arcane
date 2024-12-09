@@ -125,6 +125,8 @@ defmodule Arcane.Parser.Lexer do
       term == "+" -> Token.plus()
       term == "(" -> Token.paren_l()
       term == ")" -> Token.paren_r()
+      term == "{" -> Token.body_open()
+      term == "}" -> Token.body_close()
       term == "," -> Token.comma()
       identifier?(term) -> Token.ident(token)
       numeric?(term) -> Token.int(token)

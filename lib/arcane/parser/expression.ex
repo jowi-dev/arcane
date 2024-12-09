@@ -3,6 +3,7 @@ defmodule Arcane.Parser.Expression do
     Expressions are a statement or collection of statements which make up functionality
   """
 
+  alias Arcane.Parser.Declaration
   alias Arcane.Parser.Lexer
   alias Arcane.Parser.Statement
   alias Arcane.Parser.Token
@@ -65,6 +66,27 @@ defmodule Arcane.Parser.Expression do
       %Token{type: :ident} = token ->
         ctx = Map.put(ctx, :args, [token | ctx.args])
         parse_args({rest, ctx})
+
+      %Token{type: :expr_open} ->
+        {input, ctx}
+    end
+  end
+
+  defp parse_body({input, %{type: "module"} = ctx}) do
+    {token, rest} = Lexer.next_token(input)
+
+    case token do
+      %Token{type: type} when type in [:expr_open, :body_open, :newline] ->
+        parse_body({rest, ctx})
+
+      %Token{type: type} when type in [:expr_close, :body_close, :file_end] ->
+        {rest, ctx}
+
+      %Token{type: :ident} ->
+        {:ok, decl, rest} = Declaration.parse(input)
+        ctx = Map.put(ctx, :body, [decl | ctx.body])
+
+        parse_body({rest, ctx})
     end
   end
 
@@ -75,7 +97,7 @@ defmodule Arcane.Parser.Expression do
       %Token{type: type} when type in [:expr_open, :body_open] ->
         parse_body({rest, ctx})
 
-      %Token{type: type} when type in [:body_close, :file_end] ->
+      %Token{type: type} when type in [:expr_close, :body_close, :file_end] ->
         {rest, ctx}
 
       _token ->

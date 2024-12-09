@@ -1,9 +1,27 @@
 defmodule Arcane.Parser.ExpressionTest do
   use ExUnit.Case
 
+  alias Arcane.Parser.Declaration
   alias Arcane.Parser.Expression
   alias Arcane.Parser.Statement
   alias Arcane.Parser.Token
+
+  test "parses a module expression" do
+    {:ok, expr, _} =
+      Expression.parse_expression("""
+      module => {
+        myFunc :: func(num, numtwo) => {
+          num + numtwo
+        }
+      }
+      """)
+
+    num1 = Token.ident("num")
+    num2 = Token.ident("numtwo")
+    assert expr.type == "module"
+    assert [%Declaration{type: "func", expressions: [func_expr]}] = expr.body
+    assert [^num1, ^num2] = func_expr.args
+  end
 
   test "Evaluates a function" do
     one = Token.ident("one")
@@ -38,7 +56,7 @@ defmodule Arcane.Parser.ExpressionTest do
               args: [^one, ^two],
               body: [%Statement{} = val_3, %Statement{} = stmt | []]
             },
-            ""} =
+            _} =
              Expression.parse_expression("""
                pfunc(one, two) => {
                  val = one + two
