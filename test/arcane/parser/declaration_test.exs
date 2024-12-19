@@ -21,6 +21,33 @@ defmodule Arcane.Parser.DeclarationTest do
       assert [%Expression{type: "module", args: [], body: [func_decl]}] = decl.expressions
       assert [%Expression{type: "func", args: [^num1, ^num2]}] = func_decl.expressions
     end
+
+    test "parses a module - 2 functions" do
+      {:ok, decl, _} =
+        Declaration.parse("""
+        MyModule :: module => {
+          myFunc :: func(num, numtwo) => {
+            num + numtwo
+          }
+
+          numFunc :: func(num) => num + 1
+        }
+        """)
+
+      num1 = Token.ident("num")
+      num2 = Token.ident("numtwo")
+      assert decl.type == "module"
+
+      assert [%Expression{type: "module", args: [], body: [func2_decl, func_decl]}] =
+               decl.expressions
+
+      assert [
+               %Expression{type: "func", args: [^num1, ^num2]}
+             ] = func_decl.expressions
+
+      assert [%Expression{type: "func", args: [^num1]}] = func2_decl.expressions
+      assert func2_decl.name == "numFunc"
+    end
   end
 
   describe "parse/1 - Functions" do
