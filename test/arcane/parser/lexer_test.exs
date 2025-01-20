@@ -58,6 +58,16 @@ defmodule Arcane.Parser.LexerTest do
       {token, _rest} = Lexer.next_token(",num")
       assert %Token{term: ",", type: :comma} = token
     end
+
+    test "gets the next pattern" do
+      {token, _rest} = Lexer.next_token("@(")
+      assert %Token{term: "@", type: :pattern} = token
+    end
+
+    test "gets the next match" do
+      {token, _rest} = Lexer.next_token("@?(")
+      assert %Token{term: "@?", type: :match} = token
+    end
   end
 
   describe "peak_token/1" do

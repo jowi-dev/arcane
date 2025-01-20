@@ -49,6 +49,12 @@ defmodule Arcane.Parser.Lexer do
       identifier?(term) and (identifier?(<<c>>) or numeric?(<<c>>)) ->
         append_recurse.()
 
+      # match symbol
+      <<?@>> == term and c == ?? ->
+        token = %{token | term: <<term::binary, (<<c>>)>>}
+        token = Token.match(token)
+        {token, rest}
+
       # =>
       <<?=>> == term and c == ?> ->
         token = %{token | term: <<term::binary, (<<c>>)>>}
@@ -122,12 +128,15 @@ defmodule Arcane.Parser.Lexer do
     cond do
       is_nil(term) -> Token.file_end()
       term == "=" -> Token.assign(token)
+      term == "==" -> Token.equality()
       term == "+" -> Token.plus()
       term == "(" -> Token.paren_l()
       term == ")" -> Token.paren_r()
       term == "{" -> Token.body_open()
       term == "}" -> Token.body_close()
       term == "," -> Token.comma()
+      term == "@?" -> Token.match()
+      term == "@" -> Token.pattern()
       identifier?(term) -> Token.ident(token)
       numeric?(term) -> Token.int(token)
       true -> Token.illegal(term)

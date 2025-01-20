@@ -15,6 +15,7 @@ defmodule Arcane.Parser.Token do
   @type token_types ::
           :number
           | :assign
+          | :equality
           | :comma
           | :assign
           | :plus
@@ -42,6 +43,18 @@ defmodule Arcane.Parser.Token do
 
   def endline(),
     do: %__MODULE__{type: :endline, term: nil, family: :meta}
+
+  def equality(),
+    do: %__MODULE__{type: :equality, term: "==", family: :comparison}
+
+  def pattern(),
+    do: %__MODULE__{type: :pattern, term: "@", family: :operator}
+
+  def match(),
+    do: %__MODULE__{type: :match, term: "@?", family: :operator}
+
+  def match(token),
+    do: %__MODULE__{token | type: :match, term: "@?", family: :operator}
 
   # Lexer - Tested
   def comma, do: %__MODULE__{type: :comma, term: ",", family: :operator}
