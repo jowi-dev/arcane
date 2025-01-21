@@ -47,11 +47,17 @@ defmodule Arcane.Parser.Expression do
         # Leave the paren open in place for consistent arg parsing
         {input, Map.put(ctx, :type, :pfunc)}
 
+      %Token{type: :match} -> 
+        IO.inspect("HIT", limit: :infinity, pretty: true, label: "")
+        {input, Map.put(ctx, :type, :match)}
+
       # TODO - this needs safety - currently accepts any identifier as valid
       %Token{type: :ident, term: term} ->
         {rest, Map.put(ctx, :type, term)}
     end
   end
+
+  defp parse_args({input, %{type: :match} = ctx}), do: {input,  ctx}
 
   defp parse_args({input, ctx}) do
     {token, rest} = Lexer.next_token(input)
@@ -87,6 +93,27 @@ defmodule Arcane.Parser.Expression do
         ctx = Map.put(ctx, :body, [decl | ctx.body])
 
         parse_body({rest, ctx})
+    end
+  end
+
+  # Matches will take the form
+  # @?(
+  #   1 == 2 => "1 equals 2"
+  #   2 == 2 => "2 equals 2"
+  # )
+  # therefore they need to be parsed
+  defp parse_body({input, %{type: "match"} = ctx}) do
+    {token, rest} = Lexer.next_token(input)
+
+    case token do
+      %Token{type: :paren_close} -> 
+        {rest, ctx}
+      _ -> 
+        {:ok, branch, rest} = Branch.parse(input)
+        ctx = Map.put(ctx, :body, [branch | ctx.branches])
+
+        parse_body({rest, ctx})
+
     end
   end
 

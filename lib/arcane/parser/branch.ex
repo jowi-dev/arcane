@@ -14,6 +14,12 @@ defmodule Arcane.Parser.Branch do
           success: [Token.t()]
         }
 
+  @doc """
+    Parses the next available branch from the given string.
+  """
+  @spec parse(String.t()) :: {:ok, __MODULE__.t(), String.t()} | {:error, String.t()}
+  def parse(input) do
+  end
   def new(condition, success) do
     %__MODULE__{
       if: condition,
