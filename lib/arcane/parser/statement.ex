@@ -65,6 +65,15 @@ defmodule Arcane.Parser.Statement do
     end
   end
 
+  @doc """
+  Given a special form it may make sense to collect tokens before collecting them as a statement
+  from_tokens/2 gives us a way to turn tokens into a statement
+  """
+  @spec from_tokens([Token.t()], __MODULE__.t()) :: {:ok | :error, __MODULE__.t(), String.t()}
+  def from_tokens(tokens) do
+
+  end
+
   def to_tokens(%{tokens: tokens}) when length(tokens) >= 3 do
     tokens
     |> Enum.reverse()

@@ -68,6 +68,11 @@ defmodule Arcane.Parser.LexerTest do
       {token, _rest} = Lexer.next_token("@?(")
       assert %Token{term: "@?", type: :match} = token
     end
+
+    test "gets next equality operator" do
+      {token, _rest} = Lexer.next_token("==")
+      assert %Token{term: "==", type: :equality} = token
+    end
   end
 
   describe "peak_token/1" do
