@@ -55,11 +55,9 @@ defmodule Arcane.Parser.Expression do
         {input, Map.put(ctx, :type, :pfunc)}
 
       %Token{type: :match} ->
-        IO.inspect("HIT", limit: :infinity, pretty: true, label: "")
         {input, Map.put(ctx, :type, :match)}
 
       %Token{type: :reserved, term: term} when term in @expression_names ->
-        IO.inspect(term, limit: :infinity, pretty: true, label: "TERM")
         {rest, Map.put(ctx, :type, term)}
 
 

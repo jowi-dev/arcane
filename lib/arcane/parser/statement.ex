@@ -31,7 +31,7 @@ defmodule Arcane.Parser.Statement do
           message: String.t()
         }
 
-  def new(attrs) do
+  def new(attrs \\ %{}) do
     struct(%__MODULE__{}, attrs)
   end
 
@@ -39,7 +39,6 @@ defmodule Arcane.Parser.Statement do
   def parse_statement(expr, stmt \\ %__MODULE__{}) do
     {%{family: family} = token, rest} =
       Lexer.next_token(expr)
-    |> IO.inspect(limit: :infinity, pretty: true, label: "from statement")
 
     cond do
       family in [:value, :operator] ->
