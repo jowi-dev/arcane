@@ -3,10 +3,15 @@ defmodule Arcane.Parser.Expression do
     Expressions are a statement or collection of statements which make up functionality
   """
 
+  alias Arcane.Parser.Branch
   alias Arcane.Parser.Declaration
   alias Arcane.Parser.Lexer
   alias Arcane.Parser.Statement
   alias Arcane.Parser.Token
+
+  @expression_names [
+    :func, :pfunc, :struct, :module, :anon, :match, :match_binded
+  ]
 
   @typedoc """
   Expression types are representative of the forms available in the core grammar
@@ -15,8 +20,10 @@ defmodule Arcane.Parser.Expression do
   :struct - a struct
   :module - module
   :anon - anonymous function
+  :match - our if/else construct
+  :match_bounded - our case construct - TODO
   """
-  @type expression_types :: :func | :pfunc | :struct | :module | :anon
+  @type expression_types :: :func | :pfunc | :struct | :module | :anon | :match | :match_binded
 
   defstruct args: [],
             type: :anon,
@@ -51,13 +58,23 @@ defmodule Arcane.Parser.Expression do
         IO.inspect("HIT", limit: :infinity, pretty: true, label: "")
         {input, Map.put(ctx, :type, :match)}
 
-      # TODO - this needs safety - currently accepts any identifier as valid
-      %Token{type: :ident, term: term} ->
+      %Token{type: :reserved, term: term} when term in @expression_names ->
+        IO.inspect(term, limit: :infinity, pretty: true, label: "TERM")
         {rest, Map.put(ctx, :type, term)}
+
+
+      %Token{type: :ident, term: _term} = identifier ->
+        {token, new_rest} = Lexer.next_token(rest)
+        if token.type == :match do 
+          {new_rest, Map.merge(ctx, %{type: :match_binded, args: [identifier]})}
+        else
+          raise "Expected a match expression but found #{inspect(token)} | #{inspect(identifier)} | #{inspect(ctx)}"
+        end
     end
   end
 
   defp parse_args({input, %{type: :match} = ctx}), do: {input, ctx}
+  defp parse_args({input, %{type: :match_binded} = ctx}), do: {input, ctx}
 
   defp parse_args({input, ctx}) do
     {token, rest} = Lexer.next_token(input)
@@ -78,7 +95,7 @@ defmodule Arcane.Parser.Expression do
     end
   end
 
-  defp parse_body({input, %{type: "module"} = ctx}) do
+  defp parse_body({input, %{type: :module} = ctx}) do
     {token, rest} = Lexer.next_token(input)
 
     case token do
@@ -89,10 +106,15 @@ defmodule Arcane.Parser.Expression do
         {rest, ctx}
 
       %Token{type: :ident} ->
-        {:ok, decl, rest} = Declaration.parse(input)
-        ctx = Map.put(ctx, :body, [decl | ctx.body])
+        case Declaration.parse(input) do
+          {:ok, decl, rest} -> 
+            ctx = Map.put(ctx, :body, [decl | ctx.body])
 
-        parse_body({rest, ctx})
+            parse_body({rest, ctx})
+          {nil, rest} -> 
+            raise "Expected a Declaration and did not find it #{inspect(rest)}"
+        end
+        
     end
   end
 
@@ -102,7 +124,7 @@ defmodule Arcane.Parser.Expression do
   #   2 == 2 => "2 equals 2"
   # )
   # therefore they need to be parsed
-  defp parse_body({input, %{type: "match"} = ctx}) do
+  defp parse_body({input, %{type: :match} = ctx}) do
     {token, rest} = Lexer.next_token(input)
 
     case token do

@@ -4,8 +4,9 @@ defmodule Arcane.Parser.Branch do
 
   Each arm of a match expression has a boolean evaluation on the LHS which maps to a success state on the right if it is true.
   """
-  alias Arcane.Parser.Token
   alias Arcane.Parser.Lexer
+  alias Arcane.Parser.Statement
+  alias Arcane.Parser.Token
 
   defstruct if: [],
             success: [],
@@ -26,19 +27,22 @@ defmodule Arcane.Parser.Branch do
     {token, rest} = Lexer.next_token(input)
 
     case {token, branch} do
+      {%Token{type: :file_end}, branch} -> {:ok, branch, input}
       {%Token{type: :expr_open}, %__MODULE__{parse_stage: :if}} ->
         branch = Map.put(branch, :parse_stage, :success)
         parse(rest, branch)
 
-      {token, %{parse_stage: :if}} ->
-        branch = Map.put(branch, :if, [token | branch.if])
+      {_token, %{parse_stage: :if}} ->
+        {:ok, statement, rest} = Statement.parse_statement(input, Statement.new(%{opts: %{express?: false}}))
+        branch = Map.put(branch, :if, Statement.to_tokens(statement))
         parse(rest, branch)
 
       {%{type: :newline}, branch} ->
         branch
 
-      {token, %{parse_stage: :success}} ->
-        branch = Map.put(branch, :success, [token | branch.success])
+      {_token, %{parse_stage: :success}} ->
+        {:ok, statement, rest} = Statement.parse_statement(input)
+        branch = Map.put(branch, :success, Statement.to_tokens(statement))
         parse(rest, branch)
     end
   end

@@ -91,7 +91,7 @@ defmodule Arcane.Parser.Lexer do
       token.type == :string ->
         if c == ?" do
           token = %{token | term: <<term::binary, (<<c>>)>>}
-          token = identify_token(token)
+          token = Token.string(token)
           {token, rest}
         else
           append_recurse.()
@@ -141,6 +141,7 @@ defmodule Arcane.Parser.Lexer do
       term == "," -> Token.comma()
       term == "@?" -> Token.match()
       term == "@" -> Token.pattern()
+      identifier?(term) and reserved?(term) -> Token.reserved(term)
       identifier?(term) -> Token.ident(token)
       numeric?(term) -> Token.int(token)
       true -> Token.illegal(term)
@@ -159,4 +160,8 @@ defmodule Arcane.Parser.Lexer do
 
   @spec float?(String.t()) :: boolean()
   defp float?(val), do: val =~ ~r/^-?\d+\.\d+$/
+
+  defp reserved?(term) do
+    term in ["func", "pfunc", "struct", "module", "anon", "match", "match_binded"]
+  end
 end

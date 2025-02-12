@@ -45,7 +45,7 @@ defmodule Arcane.Parser.Token do
     do: %__MODULE__{type: :endline, term: nil, family: :meta}
 
   def equality(token \\ %__MODULE__{}),
-    do: %__MODULE__{token | type: :equality, term: "==", family: :comparison}
+    do: %__MODULE__{token | type: :equality, term: "==", family: :operator}
 
   def pattern(),
     do: %__MODULE__{type: :pattern, term: "@", family: :operator}
@@ -90,6 +90,23 @@ defmodule Arcane.Parser.Token do
       family: :value
     }
 
+    def reserved(token) when is_binary(token), 
+    do: %__MODULE__{
+      type: :reserved,
+      term: String.to_existing_atom(token),
+      family: :value
+    }
+
+    def reserved(token), 
+    do: %__MODULE__{
+      type: :reserved,
+      term: String.to_existing_atom(token.term),
+      family: :value,
+      line: token.line,
+      col: token.col
+    }
+
+
   def expr_open(token),
     do: %__MODULE__{
       type: :expr_open,
@@ -102,8 +119,11 @@ defmodule Arcane.Parser.Token do
   def body_open, do: %__MODULE__{type: :expr_open, term: "{", family: :operator}
   def body_close, do: %__MODULE__{type: :expr_close, term: "}", family: :operator}
 
-  def string(val),
+  def string(val) when is_binary(val),
     do: %__MODULE__{type: :string, term: String.replace(val, "\"", ""), family: :value}
+
+  def string(val),
+    do: Map.merge(val, %{type: :string, term: String.replace(val.term, "\"", ""), family: :value})
 
   def paren_l, do: %__MODULE__{type: :paren_open, term: "(", family: :operator}
   def paren_r, do: %__MODULE__{type: :paren_close, term: ")", family: :operator}

@@ -10,10 +10,10 @@ defmodule Arcane.Parser.BranchTest do
     eq = Token.equality()
     str = Token.string("the value is two")
 
-    assert %Branch{
+    assert {:ok, %Branch{
              if: [^eq, [^val, ^two]],
              success: [^str]
-           } =
+           }, ""} =
              Branch.parse("""
                value == 2 => "the value is two"
              """)

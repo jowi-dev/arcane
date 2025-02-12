@@ -21,7 +21,8 @@ defmodule Arcane.Parser.Statement do
   defstruct state: :init,
             tokens: [],
             expected: :value,
-            message: ""
+    message: "",
+    opts: %{express?: true}
 
   @type t :: %{
           state: :init | :parse | :complete | :error,
@@ -30,23 +31,24 @@ defmodule Arcane.Parser.Statement do
           message: String.t()
         }
 
-  def new() do
-    %__MODULE__{}
+  def new(attrs) do
+    struct(%__MODULE__{}, attrs)
   end
 
   @spec parse_statement(String.t(), __MODULE__.t()) :: {:ok | :error, __MODULE__.t(), String.t()}
   def parse_statement(expr, stmt \\ %__MODULE__{}) do
     {%{family: family} = token, rest} =
       Lexer.next_token(expr)
+    |> IO.inspect(limit: :infinity, pretty: true, label: "from statement")
 
     cond do
       family in [:value, :operator] ->
         case append(stmt, token) do
           %{state: :complete} = statement ->
             # peak next token to ensure there isnt a continuation
-            %{family: new_family} = Lexer.peak_token(rest, expected: statement.expected)
+            %{family: new_family, type: type} = Lexer.peak_token(rest, expected: statement.expected)
 
-            if new_family == family or token.type == :endline,
+            if new_family == family or token.type == :endline or (type == :expr_open and not stmt.opts.express?),
               do: {:ok, statement, rest},
               else: parse_statement(rest, statement)
 
@@ -70,7 +72,7 @@ defmodule Arcane.Parser.Statement do
   from_tokens/2 gives us a way to turn tokens into a statement
   """
   @spec from_tokens([Token.t()], __MODULE__.t()) :: {:ok | :error, __MODULE__.t(), String.t()}
-  def from_tokens(tokens) do
+  def from_tokens(tokens, statement \\ %__MODULE__{}) do
 
   end
 

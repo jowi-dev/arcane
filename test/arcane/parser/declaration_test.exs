@@ -17,9 +17,9 @@ defmodule Arcane.Parser.DeclarationTest do
 
       num1 = Token.ident("num")
       num2 = Token.ident("numtwo")
-      assert decl.type == "module"
-      assert [%Expression{type: "module", args: [], body: [func_decl]}] = decl.expressions
-      assert [%Expression{type: "func", args: [^num1, ^num2]}] = func_decl.expressions
+      assert decl.type == :module
+      assert [%Expression{type: :module, args: [], body: [func_decl]}] = decl.expressions
+      assert [%Expression{type: :func, args: [^num1, ^num2]}] = func_decl.expressions
     end
 
     test "parses a module - 2 functions" do
@@ -36,16 +36,16 @@ defmodule Arcane.Parser.DeclarationTest do
 
       num1 = Token.ident("num")
       num2 = Token.ident("numtwo")
-      assert decl.type == "module"
+      assert decl.type == :module
 
-      assert [%Expression{type: "module", args: [], body: [func2_decl, func_decl]}] =
+      assert [%Expression{type: :module, args: [], body: [func2_decl, func_decl]}] =
                decl.expressions
 
       assert [
-               %Expression{type: "func", args: [^num1, ^num2]}
+               %Expression{type: :func, args: [^num1, ^num2]}
              ] = func_decl.expressions
 
-      assert [%Expression{type: "func", args: [^num1]}] = func2_decl.expressions
+      assert [%Expression{type: func, args: [^num1]}] = func2_decl.expressions
       assert func2_decl.name == "numFunc"
     end
   end
@@ -61,8 +61,8 @@ defmodule Arcane.Parser.DeclarationTest do
 
       num1 = Token.ident("num")
       num2 = Token.ident("numtwo")
-      assert [%Expression{type: "func", args: [^num1, ^num2]}] = decl.expressions
-      assert decl.type == "func"
+      assert [%Expression{type: :func, args: [^num1, ^num2]}] = decl.expressions
+      assert decl.type == :func
     end
   end
 

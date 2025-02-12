@@ -64,8 +64,8 @@ defmodule Arcane.Parser.ExpressionTest do
 
     num1 = Token.ident("num")
     num2 = Token.ident("numtwo")
-    assert expr.type == "module"
-    assert [%Declaration{type: "func", expressions: [func_expr]}] = expr.body
+    assert expr.type == :module
+    assert [%Declaration{type: :func, expressions: [func_expr]}] = expr.body
     assert [^num1, ^num2] = func_expr.args
   end
 
@@ -76,7 +76,7 @@ defmodule Arcane.Parser.ExpressionTest do
 
     assert {:ok,
             %Expression{
-              type: "func",
+              type: :func,
               args: [^one, ^two],
               body: [%Statement{} = stmt]
             },
@@ -98,7 +98,7 @@ defmodule Arcane.Parser.ExpressionTest do
 
     assert {:ok,
             %Expression{
-              type: "pfunc",
+              type: :pfunc,
               args: [^one, ^two],
               body: [%Statement{} = val_3, %Statement{} = stmt | []]
             },
@@ -122,7 +122,7 @@ defmodule Arcane.Parser.ExpressionTest do
 
     assert {:ok,
             %Expression{
-              type: "pfunc",
+              type: :pfunc,
               args: [^one, ^two],
               body: [%Statement{} = stmt]
             },

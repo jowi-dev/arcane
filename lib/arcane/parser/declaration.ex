@@ -26,7 +26,7 @@ defmodule Arcane.Parser.Declaration do
   Given an unparsed expression, find the next declaration and return that along
   with the remainder of the expression
   """
-  @spec parse(String.t()) :: {__MODULE__.t() | nil, String.t()}
+  @spec parse(String.t()) :: {:ok, __MODULE__.t(), String.t()} | {nil, String.t()}
   def parse(expr) do
     # TODO - typing will go here
     # TODO - operator overload will need multiple expressions returned

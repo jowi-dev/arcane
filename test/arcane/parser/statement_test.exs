@@ -73,6 +73,15 @@ defmodule Arcane.Parser.StatementTest do
       assert {:ok, stmt, ""} = Statement.parse_statement("this=1+2")
       assert [^assign, [^this, [^plus, [^one, ^two]]]] = Statement.to_tokens(stmt)
     end
+
+    test "parses equality statement" do
+      eq = Token.equality()
+      one = Token.int(1)
+      two = Token.int(2)
+
+      assert {:ok, stmt, ""} = Statement.parse_statement("1 == 2")
+      assert [^eq, [^one, ^two]] = Statement.to_tokens(stmt)
+    end
   end
 
   describe "append/2" do
