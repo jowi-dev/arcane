@@ -10,7 +10,13 @@ defmodule Arcane.Parser.Expression do
   alias Arcane.Parser.Token
 
   @expression_names [
-    :func, :pfunc, :struct, :module, :anon, :match, :match_binded
+    :func,
+    :pfunc,
+    :struct,
+    :module,
+    :anon,
+    :match,
+    :match_binded
   ]
 
   @typedoc """
@@ -55,15 +61,21 @@ defmodule Arcane.Parser.Expression do
         {input, Map.put(ctx, :type, :pfunc)}
 
       %Token{type: :match} ->
-        {input, Map.put(ctx, :type, :match)}
+        {token, rest} = Lexer.next_token(rest)
+
+        if token.type == :paren_open do
+          {rest, Map.put(ctx, :type, :match)}
+        else
+          raise "Expected the beginning of a match expression but found #{inspect(token)}"
+        end
 
       %Token{type: :reserved, term: term} when term in @expression_names ->
         {rest, Map.put(ctx, :type, term)}
 
-
       %Token{type: :ident, term: _term} = identifier ->
         {token, new_rest} = Lexer.next_token(rest)
-        if token.type == :match do 
+
+        if token.type == :match do
           {new_rest, Map.merge(ctx, %{type: :match_binded, args: [identifier]})}
         else
           raise "Expected a match expression but found #{inspect(token)} | #{inspect(identifier)} | #{inspect(ctx)}"
@@ -90,6 +102,9 @@ defmodule Arcane.Parser.Expression do
 
       %Token{type: :expr_open} ->
         {input, ctx}
+
+      %Token{type: :newline} ->
+        {rest, ctx}
     end
   end
 
@@ -105,14 +120,14 @@ defmodule Arcane.Parser.Expression do
 
       %Token{type: :ident} ->
         case Declaration.parse(input) do
-          {:ok, decl, rest} -> 
+          {:ok, decl, rest} ->
             ctx = Map.put(ctx, :body, [decl | ctx.body])
 
             parse_body({rest, ctx})
-          {nil, rest} -> 
+
+          {nil, rest} ->
             raise "Expected a Declaration and did not find it #{inspect(rest)}"
         end
-        
     end
   end
 

@@ -27,13 +27,17 @@ defmodule Arcane.Parser.Branch do
     {token, rest} = Lexer.next_token(input)
 
     case {token, branch} do
-      {%Token{type: :file_end}, branch} -> {:ok, branch, input}
+      {%Token{type: :file_end}, branch} ->
+        {:ok, branch, input}
+
       {%Token{type: :expr_open}, %__MODULE__{parse_stage: :if}} ->
         branch = Map.put(branch, :parse_stage, :success)
         parse(rest, branch)
 
       {_token, %{parse_stage: :if}} ->
-        {:ok, statement, rest} = Statement.parse_statement(input, Statement.new(%{opts: %{express?: false}}))
+        {:ok, statement, rest} =
+          Statement.parse_statement(input, Statement.new(%{opts: %{express?: false}}))
+
         branch = Map.put(branch, :if, Statement.to_tokens(statement))
         parse(rest, branch)
 

@@ -82,6 +82,18 @@ defmodule Arcane.Parser.StatementTest do
       assert {:ok, stmt, ""} = Statement.parse_statement("1 == 2")
       assert [^eq, [^one, ^two]] = Statement.to_tokens(stmt)
     end
+
+    @tag :skip
+    test "parses a match statement" do
+      {:ok, _expr, _} =
+        Statement.parse_statement("""
+        @?(
+          2 == 3 => "It is two"
+          a > 3 => "It is three"
+          true => "neither"
+        )
+        """)
+    end
   end
 
   describe "append/2" do
@@ -89,7 +101,7 @@ defmodule Arcane.Parser.StatementTest do
       statement = Statement.new()
       two = Token.int(2)
 
-      assert %{state: :parse, expected: :operator, message: "", tokens: [^two]} =
+      assert {%{state: :parse, expected: :operator, message: "", tokens: [^two]}, _} =
                Statement.append(statement, two)
     end
 
@@ -97,7 +109,7 @@ defmodule Arcane.Parser.StatementTest do
       statement = Statement.new()
       assign = Token.assign()
 
-      assert %{state: :error, expected: :value, message: message, tokens: []} =
+      assert {%{state: :error, expected: :value, message: message, tokens: []}, _} =
                Statement.append(statement, assign)
 
       assert message ==
@@ -107,10 +119,10 @@ defmodule Arcane.Parser.StatementTest do
     test "rejects the token if its family is not expected" do
       statement = Statement.new()
       two = Token.int(2)
-      statement = Statement.append(statement, two)
+      {statement, _rest} = Statement.append(statement, two)
       three = Token.int(3)
 
-      assert %{state: :error, expected: :operator, message: message, tokens: [^two]} =
+      assert {%{state: :error, expected: :operator, message: message, tokens: [^two]}, _} =
                Statement.append(statement, three)
 
       assert message ==
@@ -120,24 +132,30 @@ defmodule Arcane.Parser.StatementTest do
     test "appends either a value or an operator to the statement" do
       statement = Statement.new()
       two = Token.int(2)
-      statement = Statement.append(statement, two)
+      {statement, _rest} = Statement.append(statement, two)
 
       assign = Token.assign()
 
-      assert %{state: :parse, expected: :value, message: "", tokens: [^assign, ^two]} =
+      assert {%{state: :parse, expected: :value, message: "", tokens: [^assign, ^two]}, _} =
                Statement.append(statement, assign)
     end
 
     test "marks the statement complete if it can be evaluated" do
       statement = Statement.new()
       two = Token.int(2)
-      statement = Statement.append(statement, two)
+      {statement, _rest} = Statement.append(statement, two)
       plus = Token.plus()
-      statement = Statement.append(statement, plus)
+      {statement, _} = Statement.append(statement, plus)
 
       three = Token.int(3)
 
-      assert %{state: :complete, expected: :operator, message: "", tokens: [^three, ^plus, ^two]} =
+      assert {%{
+                state: :complete,
+                expected: :operator,
+                message: "",
+                tokens: [^three, ^plus, ^two]
+              },
+              _} =
                Statement.append(statement, three)
     end
   end

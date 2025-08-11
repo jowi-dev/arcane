@@ -10,14 +10,17 @@ defmodule Arcane.Parser.BranchTest do
     eq = Token.equality()
     str = Token.string("the value is two")
 
-    assert {:ok, %Branch{
-             if: [^eq, [^val, ^two]],
-             success: [^str]
-           }, ""} =
+    assert {:ok,
+            %Branch{
+              if: [^eq, [^val, ^two]],
+              success: [^str]
+            },
+            ""} =
              Branch.parse("""
                value == 2 => "the value is two"
              """)
   end
 
+  @tag :skip
   test "multi line branches"
 end

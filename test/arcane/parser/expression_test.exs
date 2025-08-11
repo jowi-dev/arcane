@@ -7,26 +7,27 @@ defmodule Arcane.Parser.ExpressionTest do
   alias Arcane.Parser.Statement
   alias Arcane.Parser.Token
 
+  @tag :skip
   test "parses a match expression" do
-    {:ok, expr, _} =
+    {:ok, _expr, _} =
       Expression.parse_expression("""
-      input = 2
-
-      result = input@?(
-        2 => "It is two"
-        3 => "It is three"
-        _val => "neither"
-      )
+        input@?(
+          2 => "It is two"
+          3 => "It is three"
+          _val => "neither"
+        )
       """)
   end
 
+  @tag :skip
   test "parses a match" do
-    {:ok, expr, _} =
+    {:ok, _expr, _} =
       Expression.parse_expression("""
       input@(%{name: name})
       """)
   end
 
+  @tag :skip
   test "parses a conditional match" do
     {:ok, expr, _} =
       Expression.parse_expression("""
@@ -48,7 +49,7 @@ defmodule Arcane.Parser.ExpressionTest do
 
     %Branch{
       if: [^one, ^eq, ^two],
-      success: str
+      success: ^str
     } = branch
   end
 

@@ -90,14 +90,14 @@ defmodule Arcane.Parser.Token do
       family: :value
     }
 
-    def reserved(token) when is_binary(token), 
+  def reserved(token) when is_binary(token),
     do: %__MODULE__{
       type: :reserved,
       term: String.to_existing_atom(token),
       family: :value
     }
 
-    def reserved(token), 
+  def reserved(token),
     do: %__MODULE__{
       type: :reserved,
       term: String.to_existing_atom(token.term),
@@ -105,7 +105,6 @@ defmodule Arcane.Parser.Token do
       line: token.line,
       col: token.col
     }
-
 
   def expr_open(token),
     do: %__MODULE__{

@@ -45,7 +45,7 @@ defmodule Arcane.Parser.DeclarationTest do
                %Expression{type: :func, args: [^num1, ^num2]}
              ] = func_decl.expressions
 
-      assert [%Expression{type: func, args: [^num1]}] = func2_decl.expressions
+      assert [%Expression{type: :func, args: [^num1]}] = func2_decl.expressions
       assert func2_decl.name == "numFunc"
     end
   end
