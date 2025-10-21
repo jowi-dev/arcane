@@ -12,8 +12,6 @@ defmodule Arcane.Parser do
   @operators [:plus, :assign]
   @values [:ident, :float, :int, :string]
 
-  @doc "delete this when parsing works"
-  def pass_through(tokens), do: tokens
 
   #  @doc """
   #  This is the future of parsing. This function will handle moving through the string, creating tokens

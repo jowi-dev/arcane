@@ -17,7 +17,7 @@ defmodule Arcane.Compiler do
   as I likely have that use case covered by existing knowledge.
   """
   alias Arcane.Compiler.CompilerFrontend
-  alias Arcane.Compiler.LLVMBackend
+  alias Arcane.Compiler.CBackend
 
   @outdir "./target/"
 
@@ -32,21 +32,25 @@ defmodule Arcane.Compiler do
   defdelegate compile_s_expression(str), to: CompilerFrontend, as: :parse
 
   @doc """
-  Function call for the LLVM Backend
+  Function call for the C Backend
 
   ast: The resulting string list returned from parsing an input
   output_name: The outfile that the resulting file will be named - inside the target/ dir
 
   Option to push compilation output to stdout via output_name = :stdout
   """
-  @spec compile_llvm([String.t()], String.t() | :stdout) ::
+  @spec compile_c([String.t()], String.t() | :stdout) ::
           {:ok, String.t()} | :ok | {:error, String.t()}
-  def compile_llvm(ast, :stdout), do: LLVMBackend.compile(ast)
+  def compile_c(ast, :stdout) do
+    c_code = CBackend.compile(ast)
+    IO.puts(c_code)
+    :ok
+  end
 
-  def compile_llvm(ast, output_name) do
-    ir_code = LLVMBackend.compile(ast)
+  def compile_c(ast, output_name) do
+    c_code = CBackend.compile(ast)
 
-    LLVMBackend.save_ir(ir_code, output_name, @outdir)
-    LLVMBackend.generate_executable(output_name, @outdir)
+    CBackend.save_c(c_code, output_name, @outdir)
+    CBackend.generate_executable(output_name, @outdir)
   end
 end

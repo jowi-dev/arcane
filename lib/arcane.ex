@@ -5,14 +5,12 @@ defmodule Arcane do
   This module serves as an entry point for interacting with all points of the compiler
   """
   alias Arcane.Compiler
-  alias Arcane.Parser
 
-  @doc "Compile the expression and dump LLVM IR to stdout"
+  @doc "Compile the expression and dump C code to stdout"
   def compile_expression(expr) do
     expr
-    |> Parser.pass_through()
     |> Compiler.compile_s_expression()
-    |> Compiler.compile_llvm(:stdout)
+    |> Compiler.compile_c(:stdout)
   end
 
   @doc "Compile the expression and create a runnable executable"
@@ -21,8 +19,7 @@ defmodule Arcane do
     Application.ensure_all_started(:arcane)
 
     expr
-    |> Parser.pass_through()
     |> Compiler.compile_s_expression()
-    |> Compiler.compile_llvm(output_name)
+    |> Compiler.compile_c(output_name)
   end
 end
