@@ -44,7 +44,7 @@ defmodule Arcane.Parser.Token do
   def endline(),
     do: %__MODULE__{type: :endline, term: nil, family: :meta}
 
-  def equality(token \\ %__MODULE__{}),
+  def equality(%__MODULE__{} = token \\ %__MODULE__{}),
     do: %__MODULE__{token | type: :equality, term: "==", family: :operator}
 
   def pattern(),
@@ -53,7 +53,7 @@ defmodule Arcane.Parser.Token do
   def match(),
     do: %__MODULE__{type: :match, term: "@?", family: :operator}
 
-  def match(token),
+  def match(%__MODULE__{} = token),
     do: %__MODULE__{token | type: :match, term: "@?", family: :operator}
 
   # Lexer - Tested

@@ -40,7 +40,7 @@ defmodule Arcane.Compiler.CBackend do
     c_file = "#{outdir}#{output_name}.c"
     exe_file = "#{outdir}#{output_name}"
 
-    case System.cmd("cc", ["-o", exe_file, c_file]) do
+    case System.cmd("cc", ["-o", exe_file, c_file], stderr_to_stdout: true) do
       {_, 0} -> {:ok, output_name}
       {error, _} -> {:error, "C compilation failed: #{error}"}
     end
